@@ -32,7 +32,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar className={`border-r border-border/40 ${collapsed ? "w-14" : "w-64"}`}>
-      <SidebarContent className="bg-blue-900 text-white">
+      <SidebarContent className="bg-slate-900 text-white">
         <div className="p-4 border-b border-border/40">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-6 w-6 text-primary" />
