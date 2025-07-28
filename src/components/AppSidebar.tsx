@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { MessageSquare, PieChart, Search, TrendingUp } from "lucide-react";
+import { MessageSquare, PieChart, Search, TrendingUp, Sparkles } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,6 +16,7 @@ const menuItems = [
   { title: "Chatbot", url: "/", icon: MessageSquare },
   { title: "Portfolio", url: "/portfolio", icon: PieChart },
   { title: "Asset Profiling", url: "/asset-profiling", icon: Search },
+  { title: "Narratives", url: "/narratives", icon: Sparkles },
 ];
 
 export function AppSidebar() {

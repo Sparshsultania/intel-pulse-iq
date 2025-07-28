@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, TrendingUp, TrendingDown, Shield, PieChart, Calendar, DollarSign, Info, Newspaper, Sparkles } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
@@ -229,226 +230,241 @@ export default function Portfolio() {
         </div>
       </Card>
 
-      {/* Portfolio Performance Chart */}
-      <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/40">
-        <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-primary" />
-          Portfolio Performance (30 Days)
-        </h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={generatePortfolioData()}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis 
-                dataKey="day" 
-                stroke="hsl(var(--muted-foreground))" 
-                fontSize={12}
-              />
-              <YAxis 
-                stroke="hsl(var(--muted-foreground))" 
-                fontSize={12}
-              />
-              <Tooltip 
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px'
-                }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="value" 
-                stroke="hsl(var(--primary))" 
-                fill="hsl(var(--primary) / 0.2)"
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
+      {/* Tabbed Portfolio Sections */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="holdings">Holdings</TabsTrigger>
+          <TabsTrigger value="insights">Insights</TabsTrigger>
+          <TabsTrigger value="narratives">Narratives</TabsTrigger>
+        </TabsList>
 
-      {/* Holdings Information Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* News & Info Section */}
-        <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
-          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Newspaper className="h-5 w-5 text-primary" />
-            Holdings News & Info
-          </h3>
-          <div className="space-y-3">
-            {getNewsForHoldings().map((item, index) => (
-              <div key={index} className="p-3 bg-muted/20 rounded-lg">
-                <div className="flex items-center gap-2 mb-1">
-                  <Badge variant="outline" className="text-xs">{item.symbol}</Badge>
-                  <span className="text-xs text-muted-foreground">{item.date}</span>
-                </div>
-                <p className="text-sm text-foreground">{item.news}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Major Dates Section */}
-        <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
-          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-primary" />
-            Upcoming Major Dates
-          </h3>
-          <div className="space-y-3">
-            {getMajorDates().map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="outline" className="text-xs">{item.symbol}</Badge>
-                    <Badge variant={item.type === 'earnings' ? 'default' : 'secondary'} className="text-xs">
-                      {item.type}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-foreground">{item.event}</p>
-                </div>
-                <span className="text-sm font-medium text-muted-foreground">{item.date}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      {/* Narratives Section */}
-      <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/40">
-        <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          Market Narratives
-        </h3>
-        <div className="space-y-6">
-          {narratives.map((narrative, index) => (
-            <div key={index} className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-semibold text-foreground">{narrative.name}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Strength: {narrative.strength}/100 • {narrative.assets.length} assets
-                  </p>
-                </div>
-                <Badge style={{ backgroundColor: narrative.color }} className="text-white">
-                  {narrative.strength}% Strong
-                </Badge>
-              </div>
-              
-              {/* Multi-asset "noodle" chart */}
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={generateNarrativeData(narrative.assets)}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis 
-                      dataKey="day" 
-                      stroke="hsl(var(--muted-foreground))" 
-                      fontSize={10}
-                    />
-                    <YAxis 
-                      stroke="hsl(var(--muted-foreground))" 
-                      fontSize={10}
-                    />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    {narrative.assets.map((asset, assetIndex) => (
-                      <Line 
-                        key={asset}
-                        type="monotone" 
-                        dataKey={asset} 
-                        stroke={`hsl(${120 + assetIndex * 60}, 70%, 50%)`}
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                    ))}
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              
-              <div className="flex gap-2">
-                {narrative.assets.map((asset, assetIndex) => (
-                  <Badge key={asset} variant="outline" className="text-xs">
-                    {asset}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      {/* Portfolio Holdings */}
-      <div className="space-y-4">
-        <h3 className="text-xl font-semibold text-foreground">Your Holdings</h3>
-        {assets.map((asset, index) => (
-          <Card key={index} className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Badge variant={asset.type === 'stock' ? 'default' : 'secondary'}>
-                    {asset.type.toUpperCase()}
-                  </Badge>
-                  <h4 className="font-semibold text-foreground">{asset.symbol}</h4>
-                </div>
-                <p className="text-sm text-muted-foreground">{asset.name}</p>
-              </div>
-
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">Quantity</p>
-                <p className="font-semibold text-foreground">{asset.quantity}</p>
-              </div>
-
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">Current Price</p>
-                <p className="font-semibold text-foreground">${asset.currentPrice.toLocaleString()}</p>
-              </div>
-
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">Value</p>
-                <p className="font-semibold text-foreground">
-                  ${(asset.quantity * asset.currentPrice).toLocaleString()}
-                </p>
-              </div>
-
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">Risk Score</p>
-                <p className={`font-semibold ${getRiskColor(asset.riskScore)}`}>
-                  {asset.riskScore}/100
-                </p>
-                <p className={`text-xs ${getRiskColor(asset.riskScore)}`}>
-                  {getRiskLabel(asset.riskScore)}
-                </p>
-              </div>
-
-              <div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      {asset.nextEarnings ? `Earnings: ${asset.nextEarnings}` : 'No earnings scheduled'}
-                    </span>
-                  </div>
-                  {asset.dividendYield && (
-                    <div className="flex items-center gap-1">
-                      <DollarSign className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        Dividend: {asset.dividendYield}%
-                      </span>
-                    </div>
-                  )}
-                  <p className="text-xs text-muted-foreground truncate">
-                    {asset.lastNews}
-                  </p>
-                </div>
-              </div>
+        <TabsContent value="overview" className="space-y-6">
+          {/* Portfolio Performance Chart */}
+          <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/40">
+            <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              Portfolio Performance (30 Days)
+            </h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={generatePortfolioData()}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="day" 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="value" 
+                    stroke="hsl(var(--primary))" 
+                    fill="hsl(var(--primary) / 0.2)"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </Card>
-        ))}
-      </div>
+        </TabsContent>
+
+        <TabsContent value="holdings" className="space-y-4">
+          <h3 className="text-xl font-semibold text-foreground">Your Holdings</h3>
+          {assets.map((asset, index) => (
+            <Card key={index} className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
+              <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge variant={asset.type === 'stock' ? 'default' : 'secondary'}>
+                      {asset.type.toUpperCase()}
+                    </Badge>
+                    <h4 className="font-semibold text-foreground">{asset.symbol}</h4>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{asset.name}</p>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Quantity</p>
+                  <p className="font-semibold text-foreground">{asset.quantity}</p>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Current Price</p>
+                  <p className="font-semibold text-foreground">${asset.currentPrice.toLocaleString()}</p>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Value</p>
+                  <p className="font-semibold text-foreground">
+                    ${(asset.quantity * asset.currentPrice).toLocaleString()}
+                  </p>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Risk Score</p>
+                  <p className={`font-semibold ${getRiskColor(asset.riskScore)}`}>
+                    {asset.riskScore}/100
+                  </p>
+                  <p className={`text-xs ${getRiskColor(asset.riskScore)}`}>
+                    {getRiskLabel(asset.riskScore)}
+                  </p>
+                </div>
+
+                <div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {asset.nextEarnings ? `Earnings: ${asset.nextEarnings}` : 'No earnings scheduled'}
+                      </span>
+                    </div>
+                    {asset.dividendYield && (
+                      <div className="flex items-center gap-1">
+                        <DollarSign className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          Dividend: {asset.dividendYield}%
+                        </span>
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground truncate">
+                      {asset.lastNews}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </TabsContent>
+
+        <TabsContent value="insights" className="space-y-6">
+          {/* Holdings Information Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* News & Info Section */}
+            <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
+              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Newspaper className="h-5 w-5 text-primary" />
+                Holdings News & Info
+              </h3>
+              <div className="space-y-3">
+                {getNewsForHoldings().map((item, index) => (
+                  <div key={index} className="p-3 bg-muted/20 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Badge variant="outline" className="text-xs">{item.symbol}</Badge>
+                      <span className="text-xs text-muted-foreground">{item.date}</span>
+                    </div>
+                    <p className="text-sm text-foreground">{item.news}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Major Dates Section */}
+            <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
+              <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                Upcoming Major Dates
+              </h3>
+              <div className="space-y-3">
+                {getMajorDates().map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="outline" className="text-xs">{item.symbol}</Badge>
+                        <Badge variant={item.type === 'earnings' ? 'default' : 'secondary'} className="text-xs">
+                          {item.type}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-foreground">{item.event}</p>
+                    </div>
+                    <span className="text-sm font-medium text-muted-foreground">{item.date}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="narratives" className="space-y-6">
+          {/* Narratives Section */}
+          <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/40">
+            <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              Market Narratives
+            </h3>
+            <div className="space-y-6">
+              {narratives.map((narrative, index) => (
+                <div key={index} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-semibold text-foreground">{narrative.name}</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Strength: {narrative.strength}/100 • {narrative.assets.length} assets
+                      </p>
+                    </div>
+                    <Badge style={{ backgroundColor: narrative.color }} className="text-white">
+                      {narrative.strength}% Strong
+                    </Badge>
+                  </div>
+                  
+                  {/* Multi-asset "noodle" chart */}
+                  <div className="h-48">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={generateNarrativeData(narrative.assets)}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis 
+                          dataKey="day" 
+                          stroke="hsl(var(--muted-foreground))" 
+                          fontSize={10}
+                        />
+                        <YAxis 
+                          stroke="hsl(var(--muted-foreground))" 
+                          fontSize={10}
+                        />
+                        <Tooltip 
+                          contentStyle={{
+                            backgroundColor: 'hsl(var(--card))',
+                            border: '1px solid hsl(var(--border))',
+                            borderRadius: '8px'
+                          }}
+                        />
+                        {narrative.assets.map((asset, assetIndex) => (
+                          <Line 
+                            key={asset}
+                            type="monotone" 
+                            dataKey={asset} 
+                            stroke={`hsl(${120 + assetIndex * 60}, 70%, 50%)`}
+                            strokeWidth={2}
+                            dot={false}
+                          />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    {narrative.assets.map((asset, assetIndex) => (
+                      <Badge key={asset} variant="outline" className="text-xs">
+                        {asset}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

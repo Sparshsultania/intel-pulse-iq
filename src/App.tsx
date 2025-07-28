@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import Index from "./pages/Index";
 import Portfolio from "./pages/Portfolio";
 import AssetProfiling from "./pages/AssetProfiling";
+import Narratives from "./pages/Narratives";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/portfolio" element={<Portfolio />} />
                   <Route path="/asset-profiling" element={<AssetProfiling />} />
+                  <Route path="/narratives" element={<Narratives />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
