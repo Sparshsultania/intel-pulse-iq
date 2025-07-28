@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, TrendingUp, Volume2, Target, Building, Calendar, DollarSign, BarChart3 } from "lucide-react";
 import { mockCryptoData, mockStockData } from "@/data/mockData";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 type AssetData = {
   symbol: string;
@@ -78,6 +79,19 @@ export default function AssetProfiling() {
     `Market sentiment for ${symbol} remains bullish despite sector headwinds`
   ];
 
+  const generatePriceData = (currentPrice: number) => {
+    const data = [];
+    for (let i = 29; i >= 0; i--) {
+      const variation = (Math.random() - 0.5) * 0.1;
+      const price = currentPrice * (1 + variation * (i / 30));
+      data.push({
+        day: new Date(Date.now() - i * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        price: Math.round(price * 100) / 100
+      });
+    }
+    return data;
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -111,9 +125,9 @@ export default function AssetProfiling() {
       {/* Asset Analysis Results */}
       {selectedAsset && (
         <div className="space-y-6">
-          {/* Header Info */}
+          {/* Price Chart */}
           <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/40">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
@@ -136,6 +150,38 @@ export default function AssetProfiling() {
                   <span>{selectedAsset.changePercent > 0 ? '+' : ''}{selectedAsset.changePercent.toFixed(2)}%</span>
                 </div>
               </div>
+            </div>
+
+            {/* Price Chart */}
+            <div className="h-64 mb-6">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={generatePriceData(selectedAsset.price)}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="day" 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="hsl(var(--muted-foreground))" 
+                    fontSize={12}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="price" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

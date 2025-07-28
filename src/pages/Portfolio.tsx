@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, TrendingUp, TrendingDown, Shield, PieChart, Calendar, DollarSign } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, Shield, PieChart, Calendar, DollarSign, Info, Newspaper, Sparkles } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
 interface PortfolioAsset {
   symbol: string;
@@ -82,6 +83,72 @@ export default function Portfolio() {
     setNewAsset({ symbol: "", quantity: "" });
   };
 
+  // Generate cumulative portfolio value data
+  const generatePortfolioData = () => {
+    const data = [];
+    for (let i = 29; i >= 0; i--) {
+      const variation = Math.random() * 0.05 - 0.025;
+      const value = totalValue * (1 + variation * (i / 30));
+      data.push({
+        day: new Date(Date.now() - i * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        value: Math.round(value)
+      });
+    }
+    return data;
+  };
+
+  // Mock narratives data
+  const narratives = [
+    {
+      name: "AI & Machine Learning",
+      strength: 92,
+      assets: ["NVDA", "MSFT", "GOOGL"],
+      color: "#10b981"
+    },
+    {
+      name: "DePIN Infrastructure", 
+      strength: 85,
+      assets: ["SOL", "RNDR", "FIL"],
+      color: "#3b82f6"
+    },
+    {
+      name: "Clean Energy",
+      strength: 78,
+      assets: ["TSLA", "ENPH", "NEE"],
+      color: "#8b5cf6"
+    }
+  ];
+
+  const generateNarrativeData = (assets: string[]) => {
+    const data = [];
+    for (let i = 29; i >= 0; i--) {
+      const entry: any = {
+        day: new Date(Date.now() - i * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      };
+      assets.forEach(asset => {
+        const basePrice = asset === 'NVDA' ? 789 : asset === 'SOL' ? 245 : Math.random() * 300 + 100;
+        const variation = (Math.random() - 0.5) * 0.1;
+        entry[asset] = Math.round(basePrice * (1 + variation * (i / 30)) * 100) / 100;
+      });
+      data.push(entry);
+    }
+    return data;
+  };
+
+  const getNewsForHoldings = () => [
+    { symbol: "NVDA", news: "NVIDIA announces breakthrough in quantum computing partnerships", date: "2024-01-28" },
+    { symbol: "SOL", news: "Solana network upgrades show 40% performance improvement", date: "2024-01-27" },
+    { symbol: "NVDA", news: "Major cloud providers increase NVIDIA GPU orders for Q2", date: "2024-01-26" },
+    { symbol: "SOL", news: "New DeFi protocols launch on Solana mainnet", date: "2024-01-25" }
+  ];
+
+  const getMajorDates = () => [
+    { date: "2024-02-21", event: "NVDA Earnings Report", symbol: "NVDA", type: "earnings" },
+    { date: "2024-02-15", event: "SOL Network Upgrade", symbol: "SOL", type: "upgrade" },
+    { date: "2024-03-01", event: "NVDA Dividend Payment", symbol: "NVDA", type: "dividend" },
+    { date: "2024-03-10", event: "AI Conference Keynote", symbol: "NVDA", type: "event" }
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -159,6 +226,158 @@ export default function Portfolio() {
           <Button onClick={handleAddAsset} className="px-6">
             Add Asset
           </Button>
+        </div>
+      </Card>
+
+      {/* Portfolio Performance Chart */}
+      <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/40">
+        <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-primary" />
+          Portfolio Performance (30 Days)
+        </h3>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={generatePortfolioData()}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis 
+                dataKey="day" 
+                stroke="hsl(var(--muted-foreground))" 
+                fontSize={12}
+              />
+              <YAxis 
+                stroke="hsl(var(--muted-foreground))" 
+                fontSize={12}
+              />
+              <Tooltip 
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--card))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px'
+                }}
+              />
+              <Area 
+                type="monotone" 
+                dataKey="value" 
+                stroke="hsl(var(--primary))" 
+                fill="hsl(var(--primary) / 0.2)"
+                strokeWidth={2}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+
+      {/* Holdings Information Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* News & Info Section */}
+        <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Newspaper className="h-5 w-5 text-primary" />
+            Holdings News & Info
+          </h3>
+          <div className="space-y-3">
+            {getNewsForHoldings().map((item, index) => (
+              <div key={index} className="p-3 bg-muted/20 rounded-lg">
+                <div className="flex items-center gap-2 mb-1">
+                  <Badge variant="outline" className="text-xs">{item.symbol}</Badge>
+                  <span className="text-xs text-muted-foreground">{item.date}</span>
+                </div>
+                <p className="text-sm text-foreground">{item.news}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Major Dates Section */}
+        <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
+          <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-primary" />
+            Upcoming Major Dates
+          </h3>
+          <div className="space-y-3">
+            {getMajorDates().map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-muted/20 rounded-lg">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge variant="outline" className="text-xs">{item.symbol}</Badge>
+                    <Badge variant={item.type === 'earnings' ? 'default' : 'secondary'} className="text-xs">
+                      {item.type}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-foreground">{item.event}</p>
+                </div>
+                <span className="text-sm font-medium text-muted-foreground">{item.date}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      {/* Narratives Section */}
+      <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/40">
+        <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-primary" />
+          Market Narratives
+        </h3>
+        <div className="space-y-6">
+          {narratives.map((narrative, index) => (
+            <div key={index} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-foreground">{narrative.name}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Strength: {narrative.strength}/100 • {narrative.assets.length} assets
+                  </p>
+                </div>
+                <Badge style={{ backgroundColor: narrative.color }} className="text-white">
+                  {narrative.strength}% Strong
+                </Badge>
+              </div>
+              
+              {/* Multi-asset "noodle" chart */}
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={generateNarrativeData(narrative.assets)}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis 
+                      dataKey="day" 
+                      stroke="hsl(var(--muted-foreground))" 
+                      fontSize={10}
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))" 
+                      fontSize={10}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    {narrative.assets.map((asset, assetIndex) => (
+                      <Line 
+                        key={asset}
+                        type="monotone" 
+                        dataKey={asset} 
+                        stroke={`hsl(${120 + assetIndex * 60}, 70%, 50%)`}
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              
+              <div className="flex gap-2">
+                {narrative.assets.map((asset, assetIndex) => (
+                  <Badge key={asset} variant="outline" className="text-xs">
+                    {asset}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </Card>
 
