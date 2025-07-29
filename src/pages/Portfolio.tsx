@@ -104,7 +104,7 @@ export default function Portfolio() {
       type: Math.random() > 0.5 ? 'stock' : 'crypto',
       riskScore: Math.floor(Math.random() * 40) + 40,
       lastNews: "Recent market activity showing positive trends",
-      subPortfolio: newAsset.subPortfolio || undefined
+      subPortfolio: newAsset.subPortfolio === "none" ? undefined : newAsset.subPortfolio || undefined
     };
 
     setAssets(prev => [...prev, mockAsset]);
@@ -318,7 +318,7 @@ export default function Portfolio() {
               <SelectValue placeholder="Select sub-portfolio" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">No sub-portfolio</SelectItem>
+              <SelectItem value="none">No sub-portfolio</SelectItem>
               {subPortfolios.map((sub) => (
                 <SelectItem key={sub.id} value={sub.id}>
                   <div className="flex items-center gap-2">
