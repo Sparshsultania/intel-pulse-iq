@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, TrendingUp, TrendingDown, Shield, PieChart, Calendar, DollarSign, Info, Newspaper, Sparkles } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus, TrendingUp, TrendingDown, Shield, PieChart, Calendar, DollarSign, Info, Newspaper, Sparkles, FolderPlus, Folder } from "lucide-react";
+import Reports from "@/components/Reports";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
 interface PortfolioAsset {
@@ -18,9 +21,23 @@ interface PortfolioAsset {
   lastNews: string;
   nextEarnings?: string;
   dividendYield?: number;
+  subPortfolio?: string;
+}
+
+interface SubPortfolio {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
 }
 
 export default function Portfolio() {
+  const [subPortfolios, setSubPortfolios] = useState<SubPortfolio[]>([
+    { id: "growth", name: "Growth Portfolio", description: "High-growth stocks and emerging technologies", color: "#10b981" },
+    { id: "dividend", name: "Dividend Portfolio", description: "Stable dividend-paying stocks", color: "#3b82f6" },
+    { id: "crypto", name: "Crypto Portfolio", description: "Cryptocurrency investments", color: "#f59e0b" }
+  ]);
+
   const [assets, setAssets] = useState<PortfolioAsset[]>([
     {
       symbol: "NVDA",
@@ -32,7 +49,8 @@ export default function Portfolio() {
       riskScore: 75,
       lastNews: "NVIDIA announces new AI chip breakthrough",
       nextEarnings: "2024-02-21",
-      dividendYield: 0.8
+      dividendYield: 0.8,
+      subPortfolio: "growth"
     },
     {
       symbol: "SOL",
@@ -42,16 +60,24 @@ export default function Portfolio() {
       currentPrice: 245.67,
       type: 'crypto',
       riskScore: 85,
-      lastNews: "Solana DePIN ecosystem expanding rapidly"
+      lastNews: "Solana DePIN ecosystem expanding rapidly",
+      subPortfolio: "crypto"
     }
   ]);
 
-  const [newAsset, setNewAsset] = useState({ symbol: "", quantity: "" });
+  const [selectedPortfolio, setSelectedPortfolio] = useState<string>("total");
+  const [newAsset, setNewAsset] = useState({ symbol: "", quantity: "", subPortfolio: "" });
+  const [newSubPortfolio, setNewSubPortfolio] = useState({ name: "", description: "" });
 
-  const totalValue = assets.reduce((sum, asset) => sum + (asset.quantity * asset.currentPrice), 0);
-  const totalGainLoss = assets.reduce((sum, asset) => sum + (asset.quantity * (asset.currentPrice - asset.avgPrice)), 0);
-  const diversityScore = Math.min(100, assets.length * 15 + (new Set(assets.map(a => a.type)).size * 20));
-  const avgRiskScore = assets.reduce((sum, asset) => sum + asset.riskScore, 0) / assets.length || 0;
+  // Filter assets based on selected portfolio
+  const filteredAssets = selectedPortfolio === "total" 
+    ? assets 
+    : assets.filter(asset => asset.subPortfolio === selectedPortfolio);
+
+  const totalValue = filteredAssets.reduce((sum, asset) => sum + (asset.quantity * asset.currentPrice), 0);
+  const totalGainLoss = filteredAssets.reduce((sum, asset) => sum + (asset.quantity * (asset.currentPrice - asset.avgPrice)), 0);
+  const diversityScore = Math.min(100, filteredAssets.length * 15 + (new Set(filteredAssets.map(a => a.type)).size * 20));
+  const avgRiskScore = filteredAssets.reduce((sum, asset) => sum + asset.riskScore, 0) / filteredAssets.length || 0;
 
   const getRiskColor = (score: number) => {
     if (score >= 80) return "text-destructive";
@@ -77,11 +103,29 @@ export default function Portfolio() {
       currentPrice: Math.random() * 500 + 50,
       type: Math.random() > 0.5 ? 'stock' : 'crypto',
       riskScore: Math.floor(Math.random() * 40) + 40,
-      lastNews: "Recent market activity showing positive trends"
+      lastNews: "Recent market activity showing positive trends",
+      subPortfolio: newAsset.subPortfolio || undefined
     };
 
     setAssets(prev => [...prev, mockAsset]);
-    setNewAsset({ symbol: "", quantity: "" });
+    setNewAsset({ symbol: "", quantity: "", subPortfolio: "" });
+  };
+
+  const handleAddSubPortfolio = () => {
+    if (!newSubPortfolio.name) return;
+    
+    const colors = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    
+    const newSub: SubPortfolio = {
+      id: newSubPortfolio.name.toLowerCase().replace(/\s+/g, '-'),
+      name: newSubPortfolio.name,
+      description: newSubPortfolio.description,
+      color: randomColor
+    };
+
+    setSubPortfolios(prev => [...prev, newSub]);
+    setNewSubPortfolio({ name: "", description: "" });
   };
 
   // Generate cumulative portfolio value data
@@ -159,6 +203,59 @@ export default function Portfolio() {
             Track your investments, risk metrics, and get insights on your holdings
           </p>
         </div>
+        
+        <div className="flex items-center gap-4">
+          <Select value={selectedPortfolio} onValueChange={setSelectedPortfolio}>
+            <SelectTrigger className="w-64">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="total">
+                <div className="flex items-center gap-2">
+                  <Folder className="h-4 w-4" />
+                  Total Portfolio
+                </div>
+              </SelectItem>
+              {subPortfolios.map((sub) => (
+                <SelectItem key={sub.id} value={sub.id}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sub.color }}></div>
+                    {sub.name}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                <FolderPlus className="w-4 h-4 mr-2" />
+                Add Sub-Portfolio
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Sub-Portfolio</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Input
+                  placeholder="Portfolio name (e.g., Tech Stocks)"
+                  value={newSubPortfolio.name}
+                  onChange={(e) => setNewSubPortfolio(prev => ({ ...prev, name: e.target.value }))}
+                />
+                <Input
+                  placeholder="Description (optional)"
+                  value={newSubPortfolio.description}
+                  onChange={(e) => setNewSubPortfolio(prev => ({ ...prev, description: e.target.value }))}
+                />
+                <Button onClick={handleAddSubPortfolio} className="w-full">
+                  Create Sub-Portfolio
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Portfolio Overview */}
@@ -224,6 +321,22 @@ export default function Portfolio() {
             onChange={(e) => setNewAsset(prev => ({ ...prev, quantity: e.target.value }))}
             className="w-32"
           />
+          <Select value={newAsset.subPortfolio} onValueChange={(value) => setNewAsset(prev => ({ ...prev, subPortfolio: value }))}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Select sub-portfolio" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">No sub-portfolio</SelectItem>
+              {subPortfolios.map((sub) => (
+                <SelectItem key={sub.id} value={sub.id}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sub.color }}></div>
+                    {sub.name}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button onClick={handleAddAsset} className="px-6">
             Add Asset
           </Button>
@@ -232,11 +345,12 @@ export default function Portfolio() {
 
       {/* Tabbed Portfolio Sections */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="holdings">Holdings</TabsTrigger>
           <TabsTrigger value="insights">Insights</TabsTrigger>
           <TabsTrigger value="narratives">Narratives</TabsTrigger>
+          <TabsTrigger value="reports">Reports & Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -281,7 +395,7 @@ export default function Portfolio() {
 
         <TabsContent value="holdings" className="space-y-4">
           <h3 className="text-xl font-semibold text-foreground">Your Holdings</h3>
-          {assets.map((asset, index) => (
+          {filteredAssets.map((asset, index) => (
             <Card key={index} className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
               <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
                 <div>
@@ -463,6 +577,10 @@ export default function Portfolio() {
               ))}
             </div>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="reports" className="space-y-6">
+          <Reports selectedPortfolio={selectedPortfolio} subPortfolios={subPortfolios} />
         </TabsContent>
       </Tabs>
     </div>
