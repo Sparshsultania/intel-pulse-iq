@@ -17,6 +17,7 @@ const menuItems = [
   { title: "Portfolio", url: "/portfolio", icon: PieChart },
   { title: "Asset Profiling", url: "/asset-profiling", icon: Search },
   { title: "Narratives", url: "/narratives", icon: Sparkles },
+  { title: "Reports & Analytics", url: "/reports", icon: TrendingUp },
 ];
 
 export function AppSidebar() {
