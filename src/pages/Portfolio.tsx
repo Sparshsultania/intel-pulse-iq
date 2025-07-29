@@ -1,15 +1,11 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Plus, TrendingUp, TrendingDown, DollarSign, PieChart as PieChartIcon, Calendar, BarChart3, Edit, Trash2, Shield, Info, Newspaper, Sparkles } from "lucide-react";
-import Reports from "@/components/Reports";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, TrendingUp, TrendingDown, Shield, PieChart, Calendar, DollarSign, Info, Newspaper, Sparkles } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
 interface PortfolioAsset {
   symbol: string;
@@ -22,27 +18,9 @@ interface PortfolioAsset {
   lastNews: string;
   nextEarnings?: string;
   dividendYield?: number;
-  portfolioId?: string;
 }
 
-interface SubPortfolio {
-  id: string;
-  name: string;
-  value: number;
-  allocation: number;
-}
-
-const Portfolio = () => {
-  const [selectedPortfolio, setSelectedPortfolio] = useState("total");
-  const [subPortfolios, setSubPortfolios] = useState<SubPortfolio[]>([
-    { id: "growth", name: "Growth Portfolio", value: 45000, allocation: 36 },
-    { id: "dividend", name: "Dividend Income", value: 35000, allocation: 28 },
-    { id: "crypto", name: "Crypto Holdings", value: 25000, allocation: 20 },
-    { id: "bonds", name: "Bond Portfolio", value: 20000, allocation: 16 },
-  ]);
-  const [newPortfolioName, setNewPortfolioName] = useState("");
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-
+export default function Portfolio() {
   const [assets, setAssets] = useState<PortfolioAsset[]>([
     {
       symbol: "NVDA",
@@ -54,8 +32,7 @@ const Portfolio = () => {
       riskScore: 75,
       lastNews: "NVIDIA announces new AI chip breakthrough",
       nextEarnings: "2024-02-21",
-      dividendYield: 0.8,
-      portfolioId: "growth"
+      dividendYield: 0.8
     },
     {
       symbol: "SOL",
@@ -65,35 +42,13 @@ const Portfolio = () => {
       currentPrice: 245.67,
       type: 'crypto',
       riskScore: 85,
-      lastNews: "Solana DePIN ecosystem expanding rapidly",
-      portfolioId: "crypto"
+      lastNews: "Solana DePIN ecosystem expanding rapidly"
     }
   ]);
 
   const [newAsset, setNewAsset] = useState({ symbol: "", quantity: "" });
 
-  const handleCreatePortfolio = () => {
-    if (newPortfolioName.trim()) {
-      const newPortfolio = {
-        id: newPortfolioName.toLowerCase().replace(/\s+/g, "-"),
-        name: newPortfolioName,
-        value: 0,
-        allocation: 0,
-      };
-      setSubPortfolios([...subPortfolios, newPortfolio]);
-      setNewPortfolioName("");
-      setIsCreateDialogOpen(false);
-    }
-  };
-
-  const handleDeletePortfolio = (portfolioId: string) => {
-    setSubPortfolios(subPortfolios.filter(p => p.id !== portfolioId));
-    if (selectedPortfolio === portfolioId) {
-      setSelectedPortfolio("total");
-    }
-  };
-
-  const totalValue = subPortfolios.reduce((sum, portfolio) => sum + portfolio.value, 0);
+  const totalValue = assets.reduce((sum, asset) => sum + (asset.quantity * asset.currentPrice), 0);
   const totalGainLoss = assets.reduce((sum, asset) => sum + (asset.quantity * (asset.currentPrice - asset.avgPrice)), 0);
   const diversityScore = Math.min(100, assets.length * 15 + (new Set(assets.map(a => a.type)).size * 20));
   const avgRiskScore = assets.reduce((sum, asset) => sum + asset.riskScore, 0) / assets.length || 0;
@@ -113,6 +68,7 @@ const Portfolio = () => {
   const handleAddAsset = () => {
     if (!newAsset.symbol || !newAsset.quantity) return;
     
+    // Mock data for new assets
     const mockAsset: PortfolioAsset = {
       symbol: newAsset.symbol.toUpperCase(),
       name: `${newAsset.symbol.toUpperCase()} Asset`,
@@ -121,22 +77,19 @@ const Portfolio = () => {
       currentPrice: Math.random() * 500 + 50,
       type: Math.random() > 0.5 ? 'stock' : 'crypto',
       riskScore: Math.floor(Math.random() * 40) + 40,
-      lastNews: "Recent market activity showing positive trends",
-      portfolioId: selectedPortfolio === "total" ? "growth" : selectedPortfolio
+      lastNews: "Recent market activity showing positive trends"
     };
 
     setAssets(prev => [...prev, mockAsset]);
     setNewAsset({ symbol: "", quantity: "" });
   };
 
+  // Generate cumulative portfolio value data
   const generatePortfolioData = () => {
     const data = [];
-    const baseValue = selectedPortfolio === "total" ? totalValue : 
-                     subPortfolios.find(p => p.id === selectedPortfolio)?.value || 0;
-    
     for (let i = 29; i >= 0; i--) {
       const variation = Math.random() * 0.05 - 0.025;
-      const value = baseValue * (1 + variation * (i / 30));
+      const value = totalValue * (1 + variation * (i / 30));
       data.push({
         day: new Date(Date.now() - i * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         value: Math.round(value)
@@ -145,6 +98,7 @@ const Portfolio = () => {
     return data;
   };
 
+  // Mock narratives data
   const narratives = [
     {
       name: "AI & Machine Learning",
@@ -196,128 +150,25 @@ const Portfolio = () => {
     { date: "2024-03-10", event: "AI Conference Keynote", symbol: "NVDA", type: "event" }
   ];
 
-  const getFilteredAssets = () => {
-    if (selectedPortfolio === "total") return assets;
-    return assets.filter(asset => asset.portfolioId === selectedPortfolio);
-  };
-
-  const getCurrentPortfolioValue = () => {
-    if (selectedPortfolio === "total") return totalValue;
-    const portfolio = subPortfolios.find(p => p.id === selectedPortfolio);
-    return portfolio?.value || 0;
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Portfolio Management
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Track and analyze your investment portfolio performance
+          <h1 className="text-3xl font-bold text-foreground mb-2">Portfolio</h1>
+          <p className="text-muted-foreground">
+            Track your investments, risk metrics, and get insights on your holdings
           </p>
         </div>
-        
-        <div className="flex items-center gap-4">
-          <Select value={selectedPortfolio} onValueChange={setSelectedPortfolio}>
-            <SelectTrigger className="w-64">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="total">Total Portfolio (${totalValue.toLocaleString()})</SelectItem>
-              {subPortfolios.map((portfolio) => (
-                <SelectItem key={portfolio.id} value={portfolio.id}>
-                  {portfolio.name} (${portfolio.value.toLocaleString()})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Create Sub-Portfolio
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Sub-Portfolio</DialogTitle>
-                <DialogDescription>
-                  Create a new sub-portfolio to organize your investments by strategy, asset class, or any other criteria.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="portfolio-name">Portfolio Name</Label>
-                  <Input
-                    id="portfolio-name"
-                    value={newPortfolioName}
-                    onChange={(e) => setNewPortfolioName(e.target.value)}
-                    placeholder="e.g., Tech Stocks, International"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button onClick={handleCreatePortfolio}>Create Portfolio</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
       </div>
-
-      {/* Sub-Portfolio Management */}
-      {selectedPortfolio === "total" && subPortfolios.length > 0 && (
-        <Card className="p-6 bg-gradient-card border-border/50">
-          <h3 className="text-lg font-semibold mb-4">Sub-Portfolio Overview</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {subPortfolios.map((portfolio) => (
-              <div key={portfolio.id} className="p-4 rounded-lg border border-border/50 hover:bg-muted/20 transition-colors">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <h4 className="font-medium">{portfolio.name}</h4>
-                    <p className="text-2xl font-bold text-primary">${portfolio.value.toLocaleString()}</p>
-                    <p className="text-sm text-muted-foreground">{portfolio.allocation}% of total</p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <Edit className="w-3 h-3" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 w-8 p-0 text-bearish hover:text-bearish"
-                      onClick={() => handleDeletePortfolio(portfolio.id)}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => setSelectedPortfolio(portfolio.id)}
-                >
-                  View Details
-                </Button>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
 
       {/* Portfolio Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
           <div className="flex items-center gap-2 mb-2">
             <DollarSign className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-muted-foreground">
-              {selectedPortfolio === "total" ? "Total Value" : "Portfolio Value"}
-            </span>
+            <span className="text-sm font-medium text-muted-foreground">Total Value</span>
           </div>
-          <p className="text-2xl font-bold text-foreground">${getCurrentPortfolioValue().toLocaleString()}</p>
+          <p className="text-2xl font-bold text-foreground">${totalValue.toLocaleString()}</p>
         </Card>
 
         <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
@@ -336,7 +187,7 @@ const Portfolio = () => {
 
         <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
           <div className="flex items-center gap-2 mb-2">
-            <PieChartIcon className="h-4 w-4 text-primary" />
+            <PieChart className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium text-muted-foreground">Diversity Score</span>
           </div>
           <p className="text-2xl font-bold text-foreground">{diversityScore}/100</p>
@@ -357,7 +208,7 @@ const Portfolio = () => {
       <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
         <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
           <Plus className="h-5 w-5 text-primary" />
-          Add Asset to {selectedPortfolio === "total" ? "Portfolio" : subPortfolios.find(p => p.id === selectedPortfolio)?.name}
+          Add Asset to Portfolio
         </h3>
         <div className="flex gap-4">
           <Input
@@ -379,16 +230,17 @@ const Portfolio = () => {
         </div>
       </Card>
 
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+      {/* Tabbed Portfolio Sections */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="holdings">Holdings</TabsTrigger>
           <TabsTrigger value="insights">Insights</TabsTrigger>
           <TabsTrigger value="narratives">Narratives</TabsTrigger>
-          <TabsTrigger value="reports">Reports & Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          {/* Portfolio Performance Chart */}
           <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/40">
             <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
@@ -428,10 +280,8 @@ const Portfolio = () => {
         </TabsContent>
 
         <TabsContent value="holdings" className="space-y-4">
-          <h3 className="text-xl font-semibold text-foreground">
-            {selectedPortfolio === "total" ? "All Holdings" : `${subPortfolios.find(p => p.id === selectedPortfolio)?.name} Holdings`}
-          </h3>
-          {getFilteredAssets().map((asset, index) => (
+          <h3 className="text-xl font-semibold text-foreground">Your Holdings</h3>
+          {assets.map((asset, index) => (
             <Card key={index} className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
               <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
                 <div>
@@ -498,7 +348,9 @@ const Portfolio = () => {
         </TabsContent>
 
         <TabsContent value="insights" className="space-y-6">
+          {/* Holdings Information Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* News & Info Section */}
             <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
               <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Newspaper className="h-5 w-5 text-primary" />
@@ -517,6 +369,7 @@ const Portfolio = () => {
               </div>
             </Card>
 
+            {/* Major Dates Section */}
             <Card className="p-4 bg-card/30 backdrop-blur-sm border-border/40">
               <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary" />
@@ -543,6 +396,7 @@ const Portfolio = () => {
         </TabsContent>
 
         <TabsContent value="narratives" className="space-y-6">
+          {/* Narratives Section */}
           <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/40">
             <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
@@ -563,6 +417,7 @@ const Portfolio = () => {
                     </Badge>
                   </div>
                   
+                  {/* Multi-asset "noodle" chart */}
                   <div className="h-48">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={generateNarrativeData(narrative.assets)}>
@@ -570,11 +425,11 @@ const Portfolio = () => {
                         <XAxis 
                           dataKey="day" 
                           stroke="hsl(var(--muted-foreground))" 
-                          fontSize={12}
+                          fontSize={10}
                         />
                         <YAxis 
                           stroke="hsl(var(--muted-foreground))" 
-                          fontSize={12}
+                          fontSize={10}
                         />
                         <Tooltip 
                           contentStyle={{
@@ -583,7 +438,6 @@ const Portfolio = () => {
                             borderRadius: '8px'
                           }}
                         />
-                        <Legend />
                         {narrative.assets.map((asset, assetIndex) => (
                           <Line 
                             key={asset}
@@ -597,18 +451,20 @@ const Portfolio = () => {
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
+                  
+                  <div className="flex gap-2">
+                    {narrative.assets.map((asset, assetIndex) => (
+                      <Badge key={asset} variant="outline" className="text-xs">
+                        {asset}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
           </Card>
         </TabsContent>
-
-        <TabsContent value="reports" className="space-y-6">
-          <Reports selectedPortfolio={selectedPortfolio} />
-        </TabsContent>
       </Tabs>
     </div>
   );
-};
-
-export default Portfolio;
+}
