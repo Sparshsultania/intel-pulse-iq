@@ -1,27 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { useTopMovers } from "@/hooks/useApiData";
+import { mockCryptoData, mockStockData } from "@/data/mockData";
 
 export function TopMovers() {
-  const { data: topMoversData, loading, error } = useTopMovers(4);
-  
-  // Separate crypto and stocks
-  const topCrypto = topMoversData.filter(asset => asset.type === 'crypto').slice(0, 2);
-  const topStocks = topMoversData.filter(asset => asset.type === 'stock').slice(0, 2);
-
-  if (loading) {
-    return (
-      <div className="w-full">
-        <div className="mb-4">
-          <h2 className="text-lg font-bold text-foreground mb-2 flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            Top Movers
-          </h2>
-        </div>
-        <p className="text-muted-foreground">Loading market data...</p>
-      </div>
-    );
-  }
+  const topCrypto = mockCryptoData.slice(0, 2);
+  const topStocks = mockStockData.slice(0, 2);
 
   const formatPrice = (price: number, symbol: string) => {
     if (symbol === "BTC" || symbol === "ETH" || price > 10) {
