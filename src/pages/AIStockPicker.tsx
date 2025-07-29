@@ -4,7 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Bot, TrendingUp, TrendingDown, Star, Award, Target, Zap, Activity, Brain } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Bot, TrendingUp, TrendingDown, Star, Award, Target, Zap, Activity, Brain, Info, Users } from "lucide-react";
 
 interface StockPick {
   symbol: string;
@@ -20,51 +21,53 @@ interface StockPick {
   sector: string;
   signal: string;
   ratingChange?: "Upgraded" | "Downgraded" | "New";
+  aiPickerCount: number;
+  methodology: "Technical" | "Fundamental" | "Sentiment" | "Hybrid" | "Momentum";
 }
 
 const largCapPicks: StockPick[] = [
-  { symbol: "NVDA", name: "NVIDIA Corporation", iqScore: 98, stockRank: 1, technicalRating: "Strong Buy", price: 789.45, change: 15.32, changePercent: 1.98, aiConfidence: 95, marketCap: "1.9T", sector: "Technology", signal: "AI momentum accelerating", ratingChange: "Upgraded" },
-  { symbol: "MSFT", name: "Microsoft Corporation", iqScore: 94, stockRank: 2, technicalRating: "Strong Buy", price: 418.25, change: 8.45, changePercent: 2.06, aiConfidence: 92, marketCap: "3.1T", sector: "Technology", signal: "Cloud dominance expanding" },
-  { symbol: "GOOGL", name: "Alphabet Inc", iqScore: 91, stockRank: 3, technicalRating: "Buy", price: 145.67, change: 2.15, changePercent: 1.50, aiConfidence: 88, marketCap: "1.8T", sector: "Technology", signal: "Search moat strengthening" },
-  { symbol: "AMZN", name: "Amazon.com Inc", iqScore: 89, stockRank: 4, technicalRating: "Buy", price: 156.23, change: -1.45, changePercent: -0.92, aiConfidence: 85, marketCap: "1.6T", sector: "Consumer Discretionary", signal: "AWS growth trajectory intact" },
-  { symbol: "AAPL", name: "Apple Inc", iqScore: 87, stockRank: 5, technicalRating: "Hold", price: 189.45, change: 0.67, changePercent: 0.35, aiConfidence: 82, marketCap: "2.9T", sector: "Technology", signal: "Services revenue stabilizing", ratingChange: "Downgraded" },
+  { symbol: "NVDA", name: "NVIDIA Corporation", iqScore: 98, stockRank: 1, technicalRating: "Strong Buy", price: 789.45, change: 15.32, changePercent: 1.98, aiConfidence: 95, marketCap: "1.9T", sector: "Technology", signal: "AI momentum accelerating", ratingChange: "Upgraded", aiPickerCount: 8, methodology: "Hybrid" },
+  { symbol: "MSFT", name: "Microsoft Corporation", iqScore: 94, stockRank: 2, technicalRating: "Strong Buy", price: 418.25, change: 8.45, changePercent: 2.06, aiConfidence: 92, marketCap: "3.1T", sector: "Technology", signal: "Cloud dominance expanding", aiPickerCount: 7, methodology: "Fundamental" },
+  { symbol: "GOOGL", name: "Alphabet Inc", iqScore: 91, stockRank: 3, technicalRating: "Buy", price: 145.67, change: 2.15, changePercent: 1.50, aiConfidence: 88, marketCap: "1.8T", sector: "Technology", signal: "Search moat strengthening", aiPickerCount: 6, methodology: "Technical" },
+  { symbol: "AMZN", name: "Amazon.com Inc", iqScore: 89, stockRank: 4, technicalRating: "Buy", price: 156.23, change: -1.45, changePercent: -0.92, aiConfidence: 85, marketCap: "1.6T", sector: "Consumer Discretionary", signal: "AWS growth trajectory intact", aiPickerCount: 5, methodology: "Sentiment" },
+  { symbol: "AAPL", name: "Apple Inc", iqScore: 87, stockRank: 5, technicalRating: "Hold", price: 189.45, change: 0.67, changePercent: 0.35, aiConfidence: 82, marketCap: "2.9T", sector: "Technology", signal: "Services revenue stabilizing", ratingChange: "Downgraded", aiPickerCount: 4, methodology: "Momentum" },
 ];
 
 const midCapPicks: StockPick[] = [
-  { symbol: "PLTR", name: "Palantir Technologies", iqScore: 95, stockRank: 1, technicalRating: "Strong Buy", price: 28.45, change: 2.15, changePercent: 8.18, aiConfidence: 93, marketCap: "62B", sector: "Technology", signal: "Government contracts accelerating", ratingChange: "New" },
-  { symbol: "SMCI", name: "Super Micro Computer", iqScore: 92, stockRank: 2, technicalRating: "Strong Buy", price: 845.67, change: 45.23, changePercent: 5.65, aiConfidence: 89, marketCap: "48B", sector: "Technology", signal: "AI infrastructure demand surge" },
-  { symbol: "ARM", name: "Arm Holdings", iqScore: 88, stockRank: 3, technicalRating: "Buy", price: 125.34, change: 3.78, changePercent: 3.11, aiConfidence: 86, marketCap: "128B", sector: "Technology", signal: "Mobile chip royalties growing" },
+  { symbol: "PLTR", name: "Palantir Technologies", iqScore: 95, stockRank: 1, technicalRating: "Strong Buy", price: 28.45, change: 2.15, changePercent: 8.18, aiConfidence: 93, marketCap: "62B", sector: "Technology", signal: "Government contracts accelerating", ratingChange: "New", aiPickerCount: 6, methodology: "Hybrid" },
+  { symbol: "SMCI", name: "Super Micro Computer", iqScore: 92, stockRank: 2, technicalRating: "Strong Buy", price: 845.67, change: 45.23, changePercent: 5.65, aiConfidence: 89, marketCap: "48B", sector: "Technology", signal: "AI infrastructure demand surge", aiPickerCount: 5, methodology: "Technical" },
+  { symbol: "ARM", name: "Arm Holdings", iqScore: 88, stockRank: 3, technicalRating: "Buy", price: 125.34, change: 3.78, changePercent: 3.11, aiConfidence: 86, marketCap: "128B", sector: "Technology", signal: "Mobile chip royalties growing", aiPickerCount: 4, methodology: "Fundamental" },
 ];
 
 const smallCapPicks: StockPick[] = [
-  { symbol: "SOUN", name: "SoundHound AI", iqScore: 89, stockRank: 1, technicalRating: "Strong Buy", price: 8.45, change: 0.75, changePercent: 9.74, aiConfidence: 78, marketCap: "2.8B", sector: "Technology", signal: "Voice AI breakthrough", ratingChange: "Upgraded" },
-  { symbol: "BBAI", name: "BigBear.ai Holdings", iqScore: 85, stockRank: 2, technicalRating: "Buy", price: 3.67, change: 0.23, changePercent: 6.69, aiConfidence: 75, marketCap: "450M", sector: "Technology", signal: "Defense AI contracts expanding" },
-  { symbol: "IREN", name: "Iris Energy", iqScore: 82, stockRank: 3, technicalRating: "Buy", price: 12.89, change: 1.45, changePercent: 12.67, aiConfidence: 72, marketCap: "1.2B", sector: "Energy", signal: "Bitcoin mining efficiency gains" },
+  { symbol: "SOUN", name: "SoundHound AI", iqScore: 89, stockRank: 1, technicalRating: "Strong Buy", price: 8.45, change: 0.75, changePercent: 9.74, aiConfidence: 78, marketCap: "2.8B", sector: "Technology", signal: "Voice AI breakthrough", ratingChange: "Upgraded", aiPickerCount: 4, methodology: "Sentiment" },
+  { symbol: "BBAI", name: "BigBear.ai Holdings", iqScore: 85, stockRank: 2, technicalRating: "Buy", price: 3.67, change: 0.23, changePercent: 6.69, aiConfidence: 75, marketCap: "450M", sector: "Technology", signal: "Defense AI contracts expanding", aiPickerCount: 3, methodology: "Technical" },
+  { symbol: "IREN", name: "Iris Energy", iqScore: 82, stockRank: 3, technicalRating: "Buy", price: 12.89, change: 1.45, changePercent: 12.67, aiConfidence: 72, marketCap: "1.2B", sector: "Energy", signal: "Bitcoin mining efficiency gains", aiPickerCount: 3, methodology: "Momentum" },
 ];
 
 const pennyStockPicks: StockPick[] = [
-  { symbol: "HOLO", name: "MicroCloud Hologram", iqScore: 76, stockRank: 1, technicalRating: "Buy", price: 0.95, change: 0.12, changePercent: 14.46, aiConfidence: 65, marketCap: "45M", sector: "Technology", signal: "Hologram patents valuable", ratingChange: "New" },
-  { symbol: "AIHS", name: "Senmiao Technology", iqScore: 73, stockRank: 2, technicalRating: "Buy", price: 1.23, change: 0.08, changePercent: 6.96, aiConfidence: 62, marketCap: "78M", sector: "Technology", signal: "Fintech expansion in Asia" },
+  { symbol: "HOLO", name: "MicroCloud Hologram", iqScore: 76, stockRank: 1, technicalRating: "Buy", price: 0.95, change: 0.12, changePercent: 14.46, aiConfidence: 65, marketCap: "45M", sector: "Technology", signal: "Hologram patents valuable", ratingChange: "New", aiPickerCount: 2, methodology: "Technical" },
+  { symbol: "AIHS", name: "Senmiao Technology", iqScore: 73, stockRank: 2, technicalRating: "Buy", price: 1.23, change: 0.08, changePercent: 6.96, aiConfidence: 62, marketCap: "78M", sector: "Technology", signal: "Fintech expansion in Asia", aiPickerCount: 2, methodology: "Sentiment" },
 ];
 
 const spStockPicks: StockPick[] = [
-  { symbol: "TSM", name: "Taiwan Semiconductor", iqScore: 93, stockRank: 1, technicalRating: "Strong Buy", price: 108.45, change: 3.21, changePercent: 3.05, aiConfidence: 91, marketCap: "562B", sector: "Technology", signal: "Chip demand acceleration" },
-  { symbol: "AVGO", name: "Broadcom Inc", iqScore: 90, stockRank: 2, technicalRating: "Buy", price: 1245.67, change: 28.45, changePercent: 2.34, aiConfidence: 87, marketCap: "565B", sector: "Technology", signal: "AI chip ecosystem dominance" },
-  { symbol: "ORCL", name: "Oracle Corporation", iqScore: 86, stockRank: 3, technicalRating: "Buy", price: 112.34, change: 1.89, changePercent: 1.71, aiConfidence: 84, marketCap: "315B", sector: "Technology", signal: "Cloud database migration" },
+  { symbol: "TSM", name: "Taiwan Semiconductor", iqScore: 93, stockRank: 1, technicalRating: "Strong Buy", price: 108.45, change: 3.21, changePercent: 3.05, aiConfidence: 91, marketCap: "562B", sector: "Technology", signal: "Chip demand acceleration", aiPickerCount: 7, methodology: "Fundamental" },
+  { symbol: "AVGO", name: "Broadcom Inc", iqScore: 90, stockRank: 2, technicalRating: "Buy", price: 1245.67, change: 28.45, changePercent: 2.34, aiConfidence: 87, marketCap: "565B", sector: "Technology", signal: "AI chip ecosystem dominance", aiPickerCount: 6, methodology: "Technical" },
+  { symbol: "ORCL", name: "Oracle Corporation", iqScore: 86, stockRank: 3, technicalRating: "Buy", price: 112.34, change: 1.89, changePercent: 1.71, aiConfidence: 84, marketCap: "315B", sector: "Technology", signal: "Cloud database migration", aiPickerCount: 5, methodology: "Hybrid" },
 ];
 
 const russellPicks: StockPick[] = [
-  { symbol: "NVDA", name: "NVIDIA Corporation", iqScore: 98, stockRank: 1, technicalRating: "Strong Buy", price: 789.45, change: 15.32, changePercent: 1.98, aiConfidence: 95, marketCap: "1.9T", sector: "Technology", signal: "AI dominance unmatched" },
-  { symbol: "MSFT", name: "Microsoft Corporation", iqScore: 94, stockRank: 2, technicalRating: "Strong Buy", price: 418.25, change: 8.45, changePercent: 2.06, aiConfidence: 92, marketCap: "3.1T", sector: "Technology", signal: "Azure AI services leading" },
-  { symbol: "TSLA", name: "Tesla Inc", iqScore: 91, stockRank: 3, technicalRating: "Buy", price: 245.67, change: 8.92, changePercent: 3.77, aiConfidence: 89, marketCap: "780B", sector: "Automotive", signal: "FSD breakthrough imminent" },
+  { symbol: "NVDA", name: "NVIDIA Corporation", iqScore: 98, stockRank: 1, technicalRating: "Strong Buy", price: 789.45, change: 15.32, changePercent: 1.98, aiConfidence: 95, marketCap: "1.9T", sector: "Technology", signal: "AI dominance unmatched", aiPickerCount: 8, methodology: "Hybrid" },
+  { symbol: "MSFT", name: "Microsoft Corporation", iqScore: 94, stockRank: 2, technicalRating: "Strong Buy", price: 418.25, change: 8.45, changePercent: 2.06, aiConfidence: 92, marketCap: "3.1T", sector: "Technology", signal: "Azure AI services leading", aiPickerCount: 7, methodology: "Fundamental" },
+  { symbol: "TSLA", name: "Tesla Inc", iqScore: 91, stockRank: 3, technicalRating: "Buy", price: 245.67, change: 8.92, changePercent: 3.77, aiConfidence: 89, marketCap: "780B", sector: "Automotive", signal: "FSD breakthrough imminent", aiPickerCount: 6, methodology: "Technical" },
 ];
 
 const aiConsensusLeaderboard = [
-  { rank: 1, analyst: "Neural Alpha", accuracy: 89.2, picks: 247, wins: 220, streak: 8 },
-  { rank: 2, analyst: "Quantum Quant", accuracy: 87.8, picks: 312, wins: 274, streak: 6 },
-  { rank: 3, analyst: "DeepValue AI", accuracy: 85.9, picks: 189, wins: 162, streak: 12 },
-  { rank: 4, analyst: "TensorTrade", accuracy: 84.7, picks: 203, wins: 172, streak: 4 },
-  { rank: 5, analyst: "Cognitive Capital", accuracy: 83.1, picks: 278, wins: 231, streak: 7 },
+  { rank: 1, analyst: "Neural Alpha", accuracy: 89.2, picks: 247, wins: 220, streak: 8, methodology: "Deep Learning + Technical Analysis", specialty: "Momentum & Breakout Patterns" },
+  { rank: 2, analyst: "Quantum Quant", accuracy: 87.8, picks: 312, wins: 274, streak: 6, methodology: "Quantum Computing + Fundamental Analysis", specialty: "Value Discovery & Risk Assessment" },
+  { rank: 3, analyst: "DeepValue AI", accuracy: 85.9, picks: 189, wins: 162, streak: 12, methodology: "CNN + Financial Sentiment", specialty: "Market Sentiment & News Analysis" },
+  { rank: 4, analyst: "TensorTrade", accuracy: 84.7, picks: 203, wins: 172, streak: 4, methodology: "LSTM + Price Action", specialty: "Time Series & Pattern Recognition" },
+  { rank: 5, analyst: "Cognitive Capital", accuracy: 83.1, picks: 278, wins: 231, streak: 7, methodology: "Ensemble Methods + ESG Scoring", specialty: "Sustainable Investment Analysis" },
 ];
 
 export default function AIStockPicker() {
@@ -211,15 +214,24 @@ export default function AIStockPicker() {
                 <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 items-center">
                   {/* Stock Info */}
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <Badge variant="outline" className="font-mono text-xs">
                         #{stock.stockRank}
                       </Badge>
                       {stock.ratingChange && getRatingChangeIcon(stock.ratingChange)}
                       <h3 className="font-bold text-lg">{stock.symbol}</h3>
+                      <Badge variant="secondary" className="text-xs">
+                        {stock.methodology}
+                      </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">{stock.name}</p>
-                    <Badge variant="secondary" className="text-xs">{stock.sector}</Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">{stock.sector}</Badge>
+                      <div className="flex items-center gap-1">
+                        <Users className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">{stock.aiPickerCount} AI pickers</span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* IQ Score */}
@@ -274,10 +286,51 @@ export default function AIStockPicker() {
 
         <TabsContent value="leaderboard" className="space-y-6">
           <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/40">
-            <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-              <Award className="h-5 w-5 text-primary" />
-              AI Stock Picker Consensus Leaderboard
-            </h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold flex items-center gap-2">
+                <Award className="h-5 w-5 text-primary" />
+                AI Stock Picker Consensus Leaderboard
+              </h3>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Info className="w-4 h-4 mr-2" />
+                    View Methodologies
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl">
+                  <DialogHeader>
+                    <DialogTitle>AI Methodology Breakdown</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {aiConsensusLeaderboard.map((analyst, index) => (
+                      <Card key={index} className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-semibold text-lg">{analyst.analyst}</h4>
+                          <Badge variant="outline">Rank #{analyst.rank}</Badge>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm font-medium text-primary mb-1">Core Methodology</p>
+                            <p className="text-sm text-muted-foreground">{analyst.methodology}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-primary mb-1">Specialty Focus</p>
+                            <p className="text-sm text-muted-foreground">{analyst.specialty}</p>
+                          </div>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-border/50">
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>Accuracy: {analyst.accuracy}%</span>
+                            <span>Win Streak: {analyst.streak}</span>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
             <p className="text-sm text-muted-foreground mb-6">
               Performance ranking of our top AI analysts based on accuracy, consistency, and returns generated.
             </p>
