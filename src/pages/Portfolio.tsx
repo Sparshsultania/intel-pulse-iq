@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, TrendingUp, TrendingDown, Shield, PieChart, Calendar, DollarSign, Info, Newspaper, Sparkles, FolderPlus, Folder } from "lucide-react";
 import Reports from "@/components/Reports";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { usePortfolios, usePriceHistory } from "@/hooks/useApiData";
 
 interface PortfolioAsset {
   symbol: string;
