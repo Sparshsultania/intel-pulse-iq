@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Mail, Lock, Camera } from "lucide-react";
 
@@ -140,6 +141,48 @@ const Profile = () => {
                 </div>
               </div>
               <Button>Update Password</Button>
+            </CardContent>
+          </Card>
+
+          {/* FAQ Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Frequently Asked Questions</CardTitle>
+              <CardDescription>Common questions about profile and account management</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>How do I change my profile picture?</AccordionTrigger>
+                  <AccordionContent>
+                    Click on your current profile picture and select "Change Photo". You can upload a new image from your device. Supported formats include JPG, PNG, and GIF with a maximum size of 5MB.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger>Can I change my email address?</AccordionTrigger>
+                  <AccordionContent>
+                    Yes, you can update your email address in the Profile Info tab. After changing your email, you'll receive a verification email at your new address to confirm the change.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-3">
+                  <AccordionTrigger>What should I do if I forgot my password?</AccordionTrigger>
+                  <AccordionContent>
+                    Click on "Forgot Password?" in the Login & Security tab. Enter your email address and we'll send you a reset link. The link will expire in 24 hours for security reasons.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-4">
+                  <AccordionTrigger>How secure is my data?</AccordionTrigger>
+                  <AccordionContent>
+                    We use industry-standard encryption to protect your data. Your passwords are hashed and salted, and we never store them in plain text. All data transmission is secured with SSL encryption.
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-5">
+                  <AccordionTrigger>Can I delete my account?</AccordionTrigger>
+                  <AccordionContent>
+                    Yes, you can delete your account by contacting our support team. Please note that this action is irreversible and all your data will be permanently removed from our servers.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </CardContent>
           </Card>
         </TabsContent>

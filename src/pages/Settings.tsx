@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Bell, TrendingUp, Bot, AlertTriangle, Mail, Smartphone, Volume2 } from "lucide-react";
 
 const Settings = () => {
@@ -236,6 +237,54 @@ const Settings = () => {
                 Volume Alerts (Paused)
               </Badge>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* FAQ Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Frequently Asked Questions</CardTitle>
+            <CardDescription>Common questions about notifications and settings</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>How do AI stock alerts work?</AccordionTrigger>
+                <AccordionContent>
+                  AI stock alerts use machine learning algorithms to analyze market trends, company performance, and technical indicators. When our AI identifies significant opportunities or risks, you'll receive notifications based on your preferences.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-2">
+                <AccordionTrigger>What are Smart Signals?</AccordionTrigger>
+                <AccordionContent>
+                  Smart Signals are technical analysis indicators that help identify trading opportunities. They include trend signals (like Golden Cross), momentum indicators (RSI levels), volume analysis, and volatility measures like Bollinger Bands.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-3">
+                <AccordionTrigger>How often will I receive notifications?</AccordionTrigger>
+                <AccordionContent>
+                  Notification frequency depends on your settings. You can choose instant alerts, hourly summaries, daily digests, or weekly reports. You can also set quiet hours to avoid notifications during specific times.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-4">
+                <AccordionTrigger>Can I customize price movement thresholds?</AccordionTrigger>
+                <AccordionContent>
+                  Currently, large price movements are set at 5% daily changes. We're working on customizable thresholds that will allow you to set your own percentage triggers for different types of alerts.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-5">
+                <AccordionTrigger>What if I'm getting too many notifications?</AccordionTrigger>
+                <AccordionContent>
+                  You can adjust your notification frequency, turn off specific alert types, or enable quiet hours. We recommend starting with daily summaries and adjusting based on your preferences and trading style.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-6">
+                <AccordionTrigger>Are push notifications available on mobile?</AccordionTrigger>
+                <AccordionContent>
+                  Yes, push notifications work on mobile devices through your web browser. Make sure to allow notifications when prompted, and check your device's notification settings if you're not receiving them.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </CardContent>
         </Card>
 
