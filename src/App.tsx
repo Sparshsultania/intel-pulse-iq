@@ -11,6 +11,8 @@ import AIStockPicker from "./pages/AIStockPicker";
 import AssetProfiling from "./pages/AssetProfiling";
 import Narratives from "./pages/Narratives";
 import Reports from "./pages/Reports";
+import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +42,8 @@ const App = () => (
                   <Route path="/asset-profiling" element={<AssetProfiling />} />
                   <Route path="/narratives" element={<Narratives />} />
                   <Route path="/reports" element={<Reports />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
