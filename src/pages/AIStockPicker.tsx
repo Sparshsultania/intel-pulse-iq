@@ -208,75 +208,100 @@ export default function AIStockPicker() {
             </Select>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             {getStockPicks(selectedCategory).map((stock, index) => (
-              <Card key={index} className="p-6 bg-card/30 backdrop-blur-sm border-border/40 hover:border-primary/30 transition-all duration-300">
-                <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 items-center">
-                  {/* Stock Info */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <Badge variant="outline" className="font-mono text-xs">
+              <Card key={index} className="p-8 bg-card/30 backdrop-blur-sm border-border/40 hover:border-primary/30 transition-all duration-300">
+                <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 items-start">
+                  {/* Stock Info - Larger Section */}
+                  <div className="xl:col-span-2 space-y-3">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <Badge variant="outline" className="font-mono text-sm px-3 py-1">
                         #{stock.stockRank}
                       </Badge>
                       {stock.ratingChange && getRatingChangeIcon(stock.ratingChange)}
-                      <h3 className="font-bold text-lg">{stock.symbol}</h3>
-                      <Badge variant="secondary" className="text-xs">
+                      <h3 className="font-bold text-xl">{stock.symbol}</h3>
+                      <Badge variant="secondary" className="text-sm px-3 py-1">
                         {stock.methodology}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">{stock.name}</p>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">{stock.sector}</Badge>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">{stock.aiPickerCount} AI pickers</span>
+                    <p className="text-base text-muted-foreground font-medium">{stock.name}</p>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <Badge variant="secondary" className="text-sm">{stock.sector}</Badge>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-muted-foreground">{stock.aiPickerCount} AI pickers consensus</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* IQ Score */}
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Brain className="h-4 w-4 text-primary" />
-                      <span className="text-xs text-muted-foreground">IQ Score</span>
+                  {/* AI Analysis Details */}
+                  <div className="space-y-4">
+                    <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/20">
+                      <div className="flex items-center justify-center gap-2 mb-2">
+                        <Brain className="h-5 w-5 text-primary" />
+                        <span className="text-sm font-medium text-muted-foreground">IQ Score</span>
+                      </div>
+                      <div className="text-3xl font-bold text-primary mb-1">{stock.iqScore}</div>
+                      <div className="text-sm text-muted-foreground">AI Confidence: {stock.aiConfidence}%</div>
                     </div>
-                    <div className="text-2xl font-bold text-primary">{stock.iqScore}</div>
-                    <div className="text-xs text-muted-foreground">AI Confidence: {stock.aiConfidence}%</div>
-                  </div>
-
-                  {/* Technical Rating */}
-                  <div className="text-center">
-                    <p className="text-xs text-muted-foreground mb-1">Technical Rating</p>
-                    <Badge className={`${getTechnicalRatingColor(stock.technicalRating)} border-0`}>
-                      {stock.technicalRating}
-                    </Badge>
-                  </div>
-
-                  {/* Price & Change */}
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-foreground">${stock.price.toLocaleString()}</p>
-                    <div className={`text-sm flex items-center justify-center gap-1 ${stock.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {stock.change >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                      {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%)
+                    
+                    <div className="text-center p-3 rounded-lg bg-muted/20">
+                      <p className="text-sm font-medium text-muted-foreground mb-1">Analysis Method</p>
+                      <Badge className={`${getTechnicalRatingColor(stock.technicalRating)} border-0 text-sm px-3 py-1`}>
+                        {stock.methodology} Analysis
+                      </Badge>
                     </div>
                   </div>
 
-                  {/* Market Cap */}
-                  <div className="text-center">
-                    <p className="text-xs text-muted-foreground">Market Cap</p>
-                    <p className="font-semibold text-foreground">{stock.marketCap}</p>
+                  {/* Price & Performance */}
+                  <div className="space-y-4">
+                    <div className="text-center p-4 rounded-lg bg-muted/10">
+                      <p className="text-lg font-bold text-foreground mb-1">${stock.price.toLocaleString()}</p>
+                      <div className={`text-base flex items-center justify-center gap-2 ${stock.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {stock.change >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                        {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%)
+                      </div>
+                    </div>
+                    
+                    <div className="text-center p-3 rounded-lg bg-muted/10">
+                      <p className="text-sm text-muted-foreground mb-1">Market Cap</p>
+                      <p className="font-semibold text-foreground">{stock.marketCap}</p>
+                    </div>
+                    
+                    <div className="text-center p-3 rounded-lg bg-muted/10">
+                      <p className="text-sm text-muted-foreground mb-1">Technical Rating</p>
+                      <Badge className={`${getTechnicalRatingColor(stock.technicalRating)} border-0 text-sm`}>
+                        {stock.technicalRating}
+                      </Badge>
+                    </div>
                   </div>
 
-                  {/* AI Signal */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-1">
-                      <Zap className="h-3 w-3 text-yellow-500" />
-                      <span className="text-xs text-muted-foreground">AI Signal</span>
+                  {/* AI Signal & Action */}
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-lg border border-border/50 bg-muted/5">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Zap className="h-4 w-4 text-yellow-500" />
+                        <span className="text-sm font-medium text-muted-foreground">AI Signal</span>
+                      </div>
+                      <p className="text-base text-foreground font-medium leading-relaxed">{stock.signal}</p>
                     </div>
-                    <p className="text-sm text-foreground">{stock.signal}</p>
-                    <Button size="sm" variant="outline" className="w-full">
-                      Add to Portfolio
-                    </Button>
+                    
+                    <div className="space-y-3">
+                      <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                        <div className="text-center">
+                          <div className="text-sm text-muted-foreground mb-1">Formula Types Used</div>
+                          <div className="flex flex-wrap gap-1 justify-center">
+                            <Badge variant="outline" className="text-xs">Technical</Badge>
+                            <Badge variant="outline" className="text-xs">Sentiment</Badge>
+                            {stock.methodology === "Hybrid" && <Badge variant="outline" className="text-xs">Fundamental</Badge>}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <Button className="w-full" size="lg">
+                        Add to Portfolio
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Card>

@@ -210,18 +210,10 @@ export default function Portfolio() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="total">
-                <div className="flex items-center gap-2">
-                  <Folder className="h-4 w-4" />
-                  Total Portfolio
-                </div>
-              </SelectItem>
+              <SelectItem value="total">Total Portfolio</SelectItem>
               {subPortfolios.map((sub) => (
                 <SelectItem key={sub.id} value={sub.id}>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sub.color }}></div>
-                    {sub.name}
-                  </div>
+                  {sub.name}
                 </SelectItem>
               ))}
             </SelectContent>
