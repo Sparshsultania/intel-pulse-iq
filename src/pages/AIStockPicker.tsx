@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Bot, TrendingUp, TrendingDown, Star, Award, Target, Zap, Activity, Brain, Info, Users } from "lucide-react";
+import { Bot, TrendingUp, TrendingDown, Star, Award, Target, Zap, Activity, Brain, Info, Users, ChevronRight, Plus, Scan, BarChart3, Volume2, AlertTriangle, Clock, Filter, Search } from "lucide-react";
 
 interface StockPick {
   symbol: string;
@@ -70,9 +70,44 @@ const aiConsensusLeaderboard = [
   { rank: 5, analyst: "Cognitive Capital", accuracy: 83.1, picks: 278, wins: 231, streak: 7, methodology: "Ensemble Methods + ESG Scoring", specialty: "Sustainable Investment Analysis" },
 ];
 
+const smartSignals = {
+  trend: [
+    { name: "Golden Cross", description: "50-day MA crosses above 200-day MA", status: "Active", count: 23, timeframe: "Daily", strength: "Strong" },
+    { name: "Ichimoku Bullish Breakout", description: "Price breaks above cloud with momentum", status: "Active", count: 18, timeframe: "4H", strength: "Strong" },
+    { name: "Death Cross", description: "50-day MA crosses below 200-day MA", status: "Active", count: 12, timeframe: "Daily", strength: "Weak" },
+    { name: "Ichimoku Bearish Breakout", description: "Price breaks below cloud with volume", status: "Active", count: 8, timeframe: "1H", strength: "Moderate" },
+  ],
+  momentum: [
+    { name: "RSI Oversold", description: "RSI below 30 with bullish divergence", status: "Active", count: 34, timeframe: "1H", strength: "Strong" },
+    { name: "MACD Bullish Cross", description: "MACD line crosses above signal line", status: "Active", count: 28, timeframe: "4H", strength: "Strong" },
+    { name: "RSI Overbought", description: "RSI above 70 with bearish divergence", status: "Active", count: 19, timeframe: "30M", strength: "Moderate" },
+    { name: "MACD Bearish Cross", description: "MACD line crosses below signal line", status: "Active", count: 15, timeframe: "Daily", strength: "Weak" },
+  ],
+  volume: [
+    { name: "OBV Rising with Price", description: "On-Balance Volume confirms price uptrend", status: "Active", count: 41, timeframe: "Daily", strength: "Strong" },
+    { name: "A/D Line Uptrend", description: "Accumulation/Distribution line trending up", status: "Active", count: 32, timeframe: "4H", strength: "Strong" },
+    { name: "OBV Falling with Price", description: "On-Balance Volume confirms price downtrend", status: "Active", count: 22, timeframe: "1H", strength: "Moderate" },
+    { name: "A/D Line Downtrend", description: "Accumulation/Distribution line trending down", status: "Active", count: 16, timeframe: "Daily", strength: "Weak" },
+  ],
+  volatility: [
+    { name: "Bollinger Band Bounce", description: "Price bounces off lower Bollinger Band", status: "Active", count: 26, timeframe: "1H", strength: "Strong" },
+    { name: "Keltner Channel Breakout", description: "Price breaks above Keltner Channel", status: "Active", count: 21, timeframe: "4H", strength: "Strong" },
+    { name: "Bollinger Band Rejection", description: "Price rejects at upper Bollinger Band", status: "Active", count: 18, timeframe: "30M", strength: "Moderate" },
+    { name: "Keltner Channel Breakdown", description: "Price breaks below Keltner Channel", status: "Active", count: 13, timeframe: "Daily", strength: "Weak" },
+  ],
+};
+
+const scanLibrary = [
+  { name: "Trend Scans", description: "Identify market direction changes", icon: TrendingUp, count: 12, color: "text-green-500 bg-green-500/10" },
+  { name: "Momentum Scans", description: "Capture price acceleration patterns", icon: Zap, count: 8, color: "text-blue-500 bg-blue-500/10" },
+  { name: "Volume Scans", description: "Track unusual trading activity", icon: Volume2, count: 6, color: "text-purple-500 bg-purple-500/10" },
+  { name: "Volatility Scans", description: "Spot breakout opportunities", icon: AlertTriangle, count: 10, color: "text-orange-500 bg-orange-500/10" },
+];
+
 export default function AIStockPicker() {
   const [selectedCategory, setSelectedCategory] = useState("large-cap");
   const [timeframe, setTimeframe] = useState("1D");
+  const [signalTimeframe, setSignalTimeframe] = useState("1H");
 
   const getStockPicks = (category: string): StockPick[] => {
     switch (category) {
@@ -104,6 +139,15 @@ export default function AIStockPicker() {
       case "Downgraded": return <TrendingDown className="h-3 w-3 text-red-500" />;
       case "New": return <Star className="h-3 w-3 text-blue-500" />;
       default: return null;
+    }
+  };
+
+  const getStrengthColor = (strength: string) => {
+    switch (strength) {
+      case "Strong": return "text-green-500 bg-green-500/10 border-green-500/20";
+      case "Moderate": return "text-yellow-500 bg-yellow-500/10 border-yellow-500/20";
+      case "Weak": return "text-red-500 bg-red-500/10 border-red-500/20";
+      default: return "text-muted-foreground bg-muted/10 border-muted/20";
     }
   };
 
@@ -180,10 +224,14 @@ export default function AIStockPicker() {
       </div>
 
       <Tabs defaultValue="picks" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="picks" className="flex items-center gap-2">
             <Bot className="w-4 h-4" />
             AI Stock Picks
+          </TabsTrigger>
+          <TabsTrigger value="smart-signals" className="flex items-center gap-2">
+            <Scan className="w-4 h-4" />
+            Smart Signals
           </TabsTrigger>
           <TabsTrigger value="leaderboard" className="flex items-center gap-2">
             <Award className="w-4 h-4" />
@@ -307,6 +355,266 @@ export default function AIStockPicker() {
               </Card>
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="smart-signals" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold">Smart Signals</h2>
+              <p className="text-muted-foreground">Real-time technical analysis signals across all markets</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <Select value={signalTimeframe} onValueChange={setSignalTimeframe}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="30M">30 Min</SelectItem>
+                  <SelectItem value="1H">1 Hour</SelectItem>
+                  <SelectItem value="4H">4 Hour</SelectItem>
+                  <SelectItem value="Daily">Daily</SelectItem>
+                  <SelectItem value="Weekly">Weekly</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline">
+                <Filter className="w-4 h-4 mr-2" />
+                Filter Markets
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Trend Signals */}
+            <Card className="p-6 bg-gradient-to-br from-green-500/5 to-green-500/2 border-green-500/20">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-green-500/10">
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Trend Signals</h3>
+                    <p className="text-sm text-muted-foreground">Identify market direction and strength across timeframes</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm">
+                  View More
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {smartSignals.trend.map((signal, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/30">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium text-sm">{signal.name}</h4>
+                        <Badge variant="outline" className={getStrengthColor(signal.strength)}>
+                          {signal.strength}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{signal.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold">{signal.count}</div>
+                      <div className="text-xs text-muted-foreground">{signal.timeframe}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Momentum Signals */}
+            <Card className="p-6 bg-gradient-to-br from-blue-500/5 to-blue-500/2 border-blue-500/20">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-blue-500/10">
+                    <Zap className="h-5 w-5 text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Momentum Signals</h3>
+                    <p className="text-sm text-muted-foreground">Capture price acceleration and market dynamics</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm">
+                  View More
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {smartSignals.momentum.map((signal, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/30">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium text-sm">{signal.name}</h4>
+                        <Badge variant="outline" className={getStrengthColor(signal.strength)}>
+                          {signal.strength}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{signal.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold">{signal.count}</div>
+                      <div className="text-xs text-muted-foreground">{signal.timeframe}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Volume Signals */}
+            <Card className="p-6 bg-gradient-to-br from-purple-500/5 to-purple-500/2 border-purple-500/20">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-purple-500/10">
+                    <Volume2 className="h-5 w-5 text-purple-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Volume Signals</h3>
+                    <p className="text-sm text-muted-foreground">Track trading activity and money flow</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm">
+                  View More
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {smartSignals.volume.map((signal, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/30">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium text-sm">{signal.name}</h4>
+                        <Badge variant="outline" className={getStrengthColor(signal.strength)}>
+                          {signal.strength}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{signal.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold">{signal.count}</div>
+                      <div className="text-xs text-muted-foreground">{signal.timeframe}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Volatility Signals */}
+            <Card className="p-6 bg-gradient-to-br from-orange-500/5 to-orange-500/2 border-orange-500/20">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-orange-500/10">
+                    <AlertTriangle className="h-5 w-5 text-orange-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Volatility Signals</h3>
+                    <p className="text-sm text-muted-foreground">Spot price fluctuations and identify breakout opportunities</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm">
+                  View More
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {smartSignals.volatility.map((signal, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-card/50 border border-border/30">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium text-sm">{signal.name}</h4>
+                        <Badge variant="outline" className={getStrengthColor(signal.strength)}>
+                          {signal.strength}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{signal.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-semibold">{signal.count}</div>
+                      <div className="text-xs text-muted-foreground">{signal.timeframe}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+
+          {/* Build Your Scan Library */}
+          <Card className="p-8 bg-gradient-to-br from-primary/5 to-primary/2 border-primary/20">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Build Your Scan Library</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Stop missing profitable setups. Our library of professional trading signals with real-time data 
+                instantly identifies opportunities across any market condition.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <div className="text-center p-4 rounded-lg bg-card/50 border border-border/30">
+                <BarChart3 className="h-6 w-6 text-primary mx-auto mb-2" />
+                <p className="text-sm font-medium">Access trend, momentum, volume & volatility signals</p>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-card/50 border border-border/30">
+                <Clock className="h-6 w-6 text-primary mx-auto mb-2" />
+                <p className="text-sm font-medium">Real-time data updates for precision day trading entries</p>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-card/50 border border-border/30">
+                <Target className="h-6 w-6 text-primary mx-auto mb-2" />
+                <p className="text-sm font-medium">Choose from 30min, 1hr, 4hr, daily & weekly timeframes</p>
+              </div>
+              <div className="text-center p-4 rounded-lg bg-card/50 border border-border/30">
+                <Star className="h-6 w-6 text-primary mx-auto mb-2" />
+                <p className="text-sm font-medium">Save your favorite scans for one-click analysis</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              {scanLibrary.map((scan, index) => (
+                <Card key={index} className="p-4 hover:border-primary/30 transition-all cursor-pointer">
+                  <div className={`p-3 rounded-lg ${scan.color} mb-3`}>
+                    <scan.icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="font-semibold text-sm mb-1">{scan.name}</h3>
+                  <p className="text-xs text-muted-foreground mb-2">{scan.description}</p>
+                  <div className="text-xs font-medium text-primary">{scan.count} scans</div>
+                </Card>
+              ))}
+              
+              <Card className="p-4 border-dashed border-2 hover:border-primary/50 transition-all cursor-pointer flex items-center justify-center">
+                <div className="text-center">
+                  <Plus className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
+                  <h3 className="font-semibold text-sm text-muted-foreground">Custom New Scan</h3>
+                </div>
+              </Card>
+            </div>
+
+            <div className="mt-8 p-6 rounded-lg bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
+              <h3 className="text-lg font-semibold mb-2">Craft scans for your strategy</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Build custom scans with real-time market data to capture breakouts, reversals, squeezes, and more.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-sm">Combine multiple signals for higher probability setups</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-sm">Instant market scanning with 30min & 1hr real-time data</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-sm">Filter by stocks, ETFs, or crypto with one click</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  <span className="text-sm">Get real-time technical ratings on every signal</span>
+                </div>
+              </div>
+              <Button className="mt-4">
+                <Search className="w-4 h-4 mr-2" />
+                Build Custom Scan
+              </Button>
+            </div>
+          </Card>
         </TabsContent>
 
         <TabsContent value="leaderboard" className="space-y-6">
