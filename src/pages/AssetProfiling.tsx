@@ -3,9 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, TrendingUp, Volume2, Target, Building, Calendar, DollarSign, BarChart3 } from "lucide-react";
+import { Search, TrendingUp, Volume2, Target, Building, Calendar, DollarSign, BarChart3, Heart } from "lucide-react";
 import { mockCryptoData, mockStockData } from "@/data/mockData";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { SentimentGauge } from "@/components/SentimentGauge";
 
 type AssetData = {
   symbol: string;
@@ -25,6 +26,7 @@ type AssetData = {
   dividendYield?: number;
   eps?: number;
   revenue?: number;
+  sentiment?: number;
 };
 
 export default function AssetProfiling() {
@@ -45,6 +47,7 @@ export default function AssetProfiling() {
       const enhancedAsset: AssetData = {
         ...asset,
         marketCap: asset.type === 'stock' ? asset.price * 1000000000 : asset.volume * 50,
+        sentiment: Math.floor(Math.random() * 100) + 1,
         ...(asset.type === 'stock' && {
           ebitda: Math.random() * 50000000000 + 10000000000,
           peRatio: Math.random() * 30 + 10,
@@ -207,6 +210,17 @@ export default function AssetProfiling() {
                 <p className="text-sm text-muted-foreground mb-1">RSI</p>
                 <p className="text-xl font-bold text-foreground">{selectedAsset.rsi}</p>
               </div>
+            </div>
+          </Card>
+
+          {/* Sentiment Analysis */}
+          <Card className="p-6 bg-card/30 backdrop-blur-sm border-border/40">
+            <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+              <Heart className="h-5 w-5 text-primary" />
+              Market Sentiment
+            </h3>
+            <div className="flex justify-center">
+              <SentimentGauge sentiment={selectedAsset.sentiment || 50} />
             </div>
           </Card>
 
