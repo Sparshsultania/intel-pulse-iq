@@ -91,6 +91,14 @@ const Reports = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("YTD");
   const [includeSold, setIncludeSold] = useState(true);
   const [selectedBenchmark, setSelectedBenchmark] = useState("SPY");
+  const [selectedPortfolio, setSelectedPortfolio] = useState("total");
+
+  // Mock subportfolios data - in real app this would come from props or context
+  const subPortfolios = [
+    { id: "tech", name: "Tech Growth", description: "High growth tech stocks", color: "hsl(var(--primary))" },
+    { id: "dividend", name: "Dividend Income", description: "Stable dividend paying stocks", color: "hsl(var(--secondary))" },
+    { id: "crypto", name: "Crypto Holdings", description: "Cryptocurrency investments", color: "hsl(var(--accent))" },
+  ];
 
   const benchmarkOptions = [
     // Indices
@@ -105,14 +113,26 @@ const Reports = () => {
     { value: "GOOGL", label: "Alphabet (GOOGL)", category: "Stocks" },
     { value: "AMZN", label: "Amazon (AMZN)", category: "Stocks" },
     { value: "NVDA", label: "NVIDIA (NVDA)", category: "Stocks" },
+    // Subportfolios
+    ...subPortfolios.map(portfolio => ({
+      value: portfolio.id,
+      label: portfolio.name,
+      category: "Subportfolios"
+    }))
   ];
+
+  const getPortfolioName = () => {
+    if (selectedPortfolio === "total") return "Total Portfolio";
+    const portfolio = subPortfolios.find(p => p.id === selectedPortfolio);
+    return portfolio?.name || "Unknown Portfolio";
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Reports & Analytics
+            Reports & Analytics - {getPortfolioName()}
           </h1>
           <p className="text-muted-foreground mt-2">
             Deep insights and actionable data for your investment portfolio
@@ -120,6 +140,20 @@ const Reports = () => {
         </div>
         
         <div className="flex items-center gap-4">
+          <Select value={selectedPortfolio} onValueChange={setSelectedPortfolio}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="total">Total Portfolio</SelectItem>
+              {subPortfolios.map((portfolio) => (
+                <SelectItem key={portfolio.id} value={portfolio.id}>
+                  {portfolio.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
           <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
             <SelectTrigger className="w-40">
               <SelectValue />
@@ -292,6 +326,16 @@ const Reports = () => {
                           {option.label}
                         </SelectItem>
                       ))}
+                      {subPortfolios.length > 0 && (
+                        <>
+                          <div className="p-2 text-xs font-medium text-muted-foreground border-t border-border/50 mt-2">Subportfolios</div>
+                          {benchmarkOptions.filter(option => option.category === "Subportfolios").map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

@@ -342,12 +342,11 @@ export default function Portfolio() {
 
       {/* Tabbed Portfolio Sections */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="holdings">Holdings</TabsTrigger>
           <TabsTrigger value="insights">Insights</TabsTrigger>
           <TabsTrigger value="narratives">Narratives</TabsTrigger>
-          <TabsTrigger value="reports">Reports & Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -576,9 +575,6 @@ export default function Portfolio() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="reports" className="space-y-6">
-          <Reports selectedPortfolio={selectedPortfolio} subPortfolios={subPortfolios} />
-        </TabsContent>
       </Tabs>
     </div>
   );
