@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Folder, Calendar, Clock, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Folder, Calendar, Clock, TrendingUp, TrendingDown, Minus, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface NewsItem {
   id: string;
@@ -20,90 +21,127 @@ interface NewsItem {
   impact: "positive" | "negative" | "neutral";
 }
 
-const mockNewsData: NewsItem[] = [
-  {
-    id: "1",
-    time: "08:30",
-    date: "2024-01-30",
-    currency: "USD",
-    name: "Non-Farm Payrolls",
-    importance: "high",
-    folder: "red",
-    expectation: "195K",
-    previous: "216K",
-    actual: "187K",
-    impact: "negative"
-  },
-  {
-    id: "2", 
-    time: "10:00",
-    date: "2024-01-30",
-    currency: "USD",
-    name: "Unemployment Rate",
-    importance: "high",
-    folder: "red",
-    expectation: "3.7%",
-    previous: "3.7%",
-    actual: "3.9%",
-    impact: "negative"
-  },
-  {
-    id: "3",
-    time: "14:00",
-    date: "2024-01-30",
-    currency: "EUR",
-    name: "ECB Interest Rate Decision",
-    importance: "high",
-    folder: "red",
-    expectation: "4.50%",
-    previous: "4.50%",
-    impact: "neutral"
-  },
-  {
-    id: "4",
-    time: "09:00",
-    date: "2024-01-30",
-    currency: "USD",
-    name: "Core PCE Price Index",
-    importance: "medium",
-    folder: "yellow",
-    expectation: "3.2%",
-    previous: "3.2%",
-    actual: "3.0%",
-    impact: "positive"
-  },
-  {
-    id: "5",
-    time: "11:30",
-    date: "2024-01-30",
-    currency: "GBP",
-    name: "GDP Growth Rate",
-    importance: "medium",
-    folder: "yellow",
-    expectation: "0.2%",
-    previous: "0.1%",
-    impact: "neutral"
-  },
-  {
-    id: "6",
-    time: "13:00",
-    date: "2024-01-30",
-    currency: "CAD",
-    name: "Building Permits",
-    importance: "low",
-    folder: "white",
-    expectation: "2.1%",
-    previous: "-1.9%",
-    impact: "neutral"
+interface HistoricalData {
+  date: string;
+  actual: string;
+  forecast: string;
+  previous: string;
+}
+
+// Generate news data for different dates
+const generateNewsForDate = (date: string): NewsItem[] => {
+  const baseEvents = [
+    {
+      time: "08:30",
+      currency: "USD",
+      name: "Non-Farm Payrolls",
+      importance: "high" as const,
+      folder: "red" as const,
+    },
+    {
+      time: "10:00", 
+      currency: "USD",
+      name: "Unemployment Rate",
+      importance: "high" as const,
+      folder: "red" as const,
+    },
+    {
+      time: "14:00",
+      currency: "EUR", 
+      name: "ECB Interest Rate Decision",
+      importance: "high" as const,
+      folder: "red" as const,
+    },
+    {
+      time: "09:00",
+      currency: "USD",
+      name: "Core PCE Price Index", 
+      importance: "medium" as const,
+      folder: "yellow" as const,
+    },
+    {
+      time: "11:30",
+      currency: "GBP",
+      name: "GDP Growth Rate",
+      importance: "medium" as const,
+      folder: "yellow" as const,
+    },
+    {
+      time: "13:00",
+      currency: "CAD",
+      name: "Building Permits",
+      importance: "low" as const,
+      folder: "white" as const,
+    }
+  ];
+
+  return baseEvents.map((event, index) => ({
+    id: `${date}-${index}`,
+    date,
+    expectation: Math.random() > 0.5 ? `${(Math.random() * 5).toFixed(1)}%` : `${Math.floor(Math.random() * 300)}K`,
+    previous: Math.random() > 0.5 ? `${(Math.random() * 5).toFixed(1)}%` : `${Math.floor(Math.random() * 300)}K`,
+    actual: Math.random() > 0.7 ? `${(Math.random() * 5).toFixed(1)}%` : undefined,
+    impact: ["positive", "negative", "neutral"][Math.floor(Math.random() * 3)] as any,
+    ...event
+  }));
+};
+
+// Generate historical data for an event
+const generateHistoricalData = (eventName: string): HistoricalData[] => {
+  const data: HistoricalData[] = [];
+  const currentDate = new Date();
+  
+  for (let i = 0; i < 144; i++) { // 12 years * 12 months
+    const date = new Date(currentDate);
+    date.setMonth(date.getMonth() - i);
+    
+    data.push({
+      date: date.toISOString().split('T')[0],
+      actual: eventName.includes('Rate') 
+        ? `${(2 + Math.random() * 3).toFixed(2)}%`
+        : `${Math.floor(150 + Math.random() * 100)}K`,
+      forecast: eventName.includes('Rate')
+        ? `${(2 + Math.random() * 3).toFixed(2)}%` 
+        : `${Math.floor(150 + Math.random() * 100)}K`,
+      previous: eventName.includes('Rate')
+        ? `${(2 + Math.random() * 3).toFixed(2)}%`
+        : `${Math.floor(150 + Math.random() * 100)}K`
+    });
   }
-];
+  
+  return data.reverse();
+};
 
 export default function News() {
   const [selectedFilter, setSelectedFilter] = useState<"all" | "red" | "yellow" | "white">("all");
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedEvent, setSelectedEvent] = useState<NewsItem | null>(null);
+  const [historicalData, setHistoricalData] = useState<HistoricalData[]>([]);
 
+  const currentNewsData = generateNewsForDate(selectedDate);
   const filteredNews = selectedFilter === "all" 
-    ? mockNewsData 
-    : mockNewsData.filter(item => item.folder === selectedFilter);
+    ? currentNewsData 
+    : currentNewsData.filter(item => item.folder === selectedFilter);
+
+  const handleEventClick = (event: NewsItem) => {
+    setSelectedEvent(event);
+    setHistoricalData(generateHistoricalData(event.name));
+  };
+
+  const navigateDate = (direction: 'prev' | 'next') => {
+    const date = new Date(selectedDate);
+    date.setDate(date.getDate() + (direction === 'next' ? 1 : -1));
+    setSelectedDate(date.toISOString().split('T')[0]);
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric', 
+      month: 'long',
+      day: 'numeric'
+    });
+  };
 
   const getFolderIcon = (folder: string) => {
     const colors = {
@@ -145,9 +183,28 @@ export default function News() {
             Track major economic events and market-moving news
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="w-4 h-4" />
-          <span>Today, January 30, 2024</span>
+        
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigateDate('prev')}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <div className="flex items-center gap-2 text-sm bg-card px-3 py-2 rounded-md border">
+              <Calendar className="w-4 h-4" />
+              <span className="font-medium">{formatDate(selectedDate)}</span>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigateDate('next')}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -200,7 +257,11 @@ export default function News() {
             </TableHeader>
             <TableBody>
               {filteredNews.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow 
+                  key={item.id} 
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleEventClick(item)}
+                >
                   <TableCell className="font-mono text-sm">{item.time}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{item.currency}</Badge>
@@ -231,7 +292,7 @@ export default function News() {
             <CardTitle className="text-sm font-medium text-muted-foreground">High Impact Events</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockNewsData.filter(item => item.folder === "red").length}</div>
+            <div className="text-2xl font-bold">{currentNewsData.filter(item => item.folder === "red").length}</div>
           </CardContent>
         </Card>
         
@@ -240,7 +301,7 @@ export default function News() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Medium Impact Events</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockNewsData.filter(item => item.folder === "yellow").length}</div>
+            <div className="text-2xl font-bold">{currentNewsData.filter(item => item.folder === "yellow").length}</div>
           </CardContent>
         </Card>
         
@@ -249,10 +310,94 @@ export default function News() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Low Impact Events</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockNewsData.filter(item => item.folder === "white").length}</div>
+            <div className="text-2xl font-bold">{currentNewsData.filter(item => item.folder === "white").length}</div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Event Details Modal */}
+      <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedEvent && getFolderIcon(selectedEvent.folder)}
+              {selectedEvent?.name} - 12 Year History
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedEvent && (
+            <div className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Currency</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Badge variant="outline">{selectedEvent.currency}</Badge>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Importance</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {getImportanceBadge(selectedEvent.importance)}
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Latest</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="font-medium">{selectedEvent.actual || selectedEvent.expectation}</div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Previous</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="font-medium">{selectedEvent.previous}</div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Historical Data (Last 12 Years)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="max-h-96 overflow-y-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Actual</TableHead>
+                          <TableHead>Forecast</TableHead>
+                          <TableHead>Previous</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {historicalData.map((record, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
+                            <TableCell className="font-medium">{record.actual}</TableCell>
+                            <TableCell className="text-muted-foreground">{record.forecast}</TableCell>
+                            <TableCell className="text-muted-foreground">{record.previous}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
