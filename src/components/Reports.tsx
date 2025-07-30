@@ -58,6 +58,28 @@ const Reports = ({ selectedPortfolio, subPortfolios }: ReportsProps) => {
   });
   const [selectedPeriod, setSelectedPeriod] = useState("YTD");
   const [includeSold, setIncludeSold] = useState(true);
+  const [selectedBenchmark, setSelectedBenchmark] = useState("SPY");
+
+  const benchmarkOptions = [
+    // Indices
+    { value: "SPY", label: "S&P 500 (SPY)", category: "Indices" },
+    { value: "QQQ", label: "NASDAQ-100 (QQQ)", category: "Indices" },
+    { value: "IWM", label: "Russell 2000 (IWM)", category: "Indices" },
+    { value: "VTI", label: "Total Stock Market (VTI)", category: "Indices" },
+    { value: "VXUS", label: "International (VXUS)", category: "Indices" },
+    // Stocks
+    { value: "AAPL", label: "Apple Inc. (AAPL)", category: "Stocks" },
+    { value: "MSFT", label: "Microsoft (MSFT)", category: "Stocks" },
+    { value: "GOOGL", label: "Alphabet (GOOGL)", category: "Stocks" },
+    { value: "AMZN", label: "Amazon (AMZN)", category: "Stocks" },
+    { value: "NVDA", label: "NVIDIA (NVDA)", category: "Stocks" },
+    // Subportfolios
+    ...subPortfolios.map(portfolio => ({
+      value: portfolio.id,
+      label: portfolio.name,
+      category: "Subportfolios"
+    }))
+  ];
 
   const getPortfolioName = () => {
     if (selectedPortfolio === "total") return "Total Portfolio";
@@ -167,7 +189,38 @@ const Reports = ({ selectedPortfolio, subPortfolios }: ReportsProps) => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="p-6 bg-gradient-card border-border/50">
-              <h3 className="text-lg font-semibold mb-4">Portfolio Performance vs Benchmark</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Portfolio Performance vs Benchmark</h3>
+                <Select value={selectedBenchmark} onValueChange={setSelectedBenchmark}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <div className="p-2 text-xs font-medium text-muted-foreground">Indices</div>
+                    {benchmarkOptions.filter(option => option.category === "Indices").map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                    <div className="p-2 text-xs font-medium text-muted-foreground border-t border-border/50 mt-2">Stocks</div>
+                    {benchmarkOptions.filter(option => option.category === "Stocks").map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                    {subPortfolios.length > 0 && (
+                      <>
+                        <div className="p-2 text-xs font-medium text-muted-foreground border-t border-border/50 mt-2">Subportfolios</div>
+                        {benchmarkOptions.filter(option => option.category === "Subportfolios").map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={performanceData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -182,7 +235,7 @@ const Reports = ({ selectedPortfolio, subPortfolios }: ReportsProps) => {
                   />
                   <Legend />
                   <Line type="monotone" dataKey="portfolio" stroke="hsl(var(--primary))" strokeWidth={3} name="Portfolio" />
-                  <Line type="monotone" dataKey="benchmark" stroke="hsl(var(--muted-foreground))" strokeWidth={2} name="S&P 500" />
+                  <Line type="monotone" dataKey="benchmark" stroke="hsl(var(--muted-foreground))" strokeWidth={2} name={benchmarkOptions.find(opt => opt.value === selectedBenchmark)?.label || "S&P 500"} />
                 </LineChart>
               </ResponsiveContainer>
             </Card>
