@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Bell, Settings } from "lucide-react";
+import { Search, Bell, Settings, TrendingUp } from "lucide-react";
 
 export const Header = () => {
   return (
@@ -9,12 +9,11 @@ export const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <img 
-              src="/lovable-uploads/b9596341-e1ae-48b5-bb48-f5ac77aa34c9.png" 
-              alt="Vanalyze Logo" 
-              className="h-10 w-auto"
-            />
+            <div className="p-2 rounded-lg bg-gradient-primary">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
             <div>
+              <h1 className="text-xl font-bold text-foreground">Vanalyze</h1>
               <p className="text-xs text-muted-foreground">AI-Driven Market Intelligence</p>
             </div>
           </div>
