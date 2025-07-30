@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Folder, Calendar, Clock, TrendingUp, TrendingDown, Minus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Folder, Calendar as CalendarIcon, Clock, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface NewsItem {
   id: string;
@@ -128,11 +132,6 @@ export default function News() {
     setHistoricalData(generateHistoricalData(event.name));
   };
 
-  const navigateDate = (direction: 'prev' | 'next') => {
-    const date = new Date(selectedDate);
-    date.setDate(date.getDate() + (direction === 'next' ? 1 : -1));
-    setSelectedDate(date.toISOString().split('T')[0]);
-  };
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-US', {
@@ -184,28 +183,33 @@ export default function News() {
           </p>
         </div>
         
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => navigateDate('prev')}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "w-auto justify-start text-left font-normal",
+                "flex items-center gap-2"
+              )}
             >
-              <ChevronLeft className="w-4 h-4" />
+              <CalendarIcon className="w-4 h-4" />
+              <span>{formatDate(selectedDate)}</span>
             </Button>
-            <div className="flex items-center gap-2 text-sm bg-card px-3 py-2 rounded-md border">
-              <Calendar className="w-4 h-4" />
-              <span className="font-medium">{formatDate(selectedDate)}</span>
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => navigateDate('next')}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={new Date(selectedDate)}
+              onSelect={(date) => {
+                if (date) {
+                  setSelectedDate(date.toISOString().split('T')[0]);
+                }
+              }}
+              initialFocus
+              className="p-3 pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
       </div>
 
       <Card>
