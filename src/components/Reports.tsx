@@ -189,38 +189,7 @@ const Reports = ({ selectedPortfolio, subPortfolios }: ReportsProps) => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="p-6 bg-gradient-card border-border/50">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Portfolio Performance vs Benchmark</h3>
-                <Select value={selectedBenchmark} onValueChange={setSelectedBenchmark}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <div className="p-2 text-xs font-medium text-muted-foreground">Indices</div>
-                    {benchmarkOptions.filter(option => option.category === "Indices").map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                    <div className="p-2 text-xs font-medium text-muted-foreground border-t border-border/50 mt-2">Stocks</div>
-                    {benchmarkOptions.filter(option => option.category === "Stocks").map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                    {subPortfolios.length > 0 && (
-                      <>
-                        <div className="p-2 text-xs font-medium text-muted-foreground border-t border-border/50 mt-2">Subportfolios</div>
-                        {benchmarkOptions.filter(option => option.category === "Subportfolios").map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
+              <h3 className="text-lg font-semibold mb-4">Portfolio Performance vs Benchmark</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={performanceData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -238,6 +207,40 @@ const Reports = ({ selectedPortfolio, subPortfolios }: ReportsProps) => {
                   <Line type="monotone" dataKey="benchmark" stroke="hsl(var(--muted-foreground))" strokeWidth={2} name={benchmarkOptions.find(opt => opt.value === selectedBenchmark)?.label || "S&P 500"} />
                 </LineChart>
               </ResponsiveContainer>
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Benchmark:</span>
+                  <Select value={selectedBenchmark} onValueChange={setSelectedBenchmark}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <div className="p-2 text-xs font-medium text-muted-foreground">Indices</div>
+                      {benchmarkOptions.filter(option => option.category === "Indices").map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                      <div className="p-2 text-xs font-medium text-muted-foreground border-t border-border/50 mt-2">Stocks</div>
+                      {benchmarkOptions.filter(option => option.category === "Stocks").map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                      {subPortfolios.length > 0 && (
+                        <>
+                          <div className="p-2 text-xs font-medium text-muted-foreground border-t border-border/50 mt-2">Subportfolios</div>
+                          {benchmarkOptions.filter(option => option.category === "Subportfolios").map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </Card>
 
             <Card className="p-6 bg-gradient-card border-border/50">
