@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { MessageSquare, PieChart, Search, TrendingUp, Sparkles, Bot } from "lucide-react";
+import { MessageSquare, PieChart, Search, TrendingUp, Sparkles, Bot, Newspaper } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +17,7 @@ const menuItems = [
   { title: "Portfolio", url: "/portfolio", icon: PieChart },
   { title: "AI Stock Picker", url: "/ai-stock-picker", icon: Bot },
   { title: "Asset Profiling", url: "/asset-profiling", icon: Search },
+  { title: "News", url: "/news", icon: Newspaper },
   { title: "Narratives", url: "/narratives", icon: Sparkles },
   { title: "Reports & Analytics", url: "/reports", icon: TrendingUp },
 ];

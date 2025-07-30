@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Portfolio from "./pages/Portfolio";
 import AIStockPicker from "./pages/AIStockPicker";
 import AssetProfiling from "./pages/AssetProfiling";
+import News from "./pages/News";
 import Narratives from "./pages/Narratives";
 import Reports from "./pages/Reports";
 import Profile from "./pages/Profile";
@@ -56,6 +57,7 @@ const App = () => (
                   <Route path="/portfolio" element={<Portfolio />} />
                   <Route path="/ai-stock-picker" element={<AIStockPicker />} />
                   <Route path="/asset-profiling" element={<AssetProfiling />} />
+                  <Route path="/news" element={<News />} />
                   <Route path="/narratives" element={<Narratives />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/profile" element={<Profile />} />
