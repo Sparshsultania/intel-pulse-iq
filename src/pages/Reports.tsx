@@ -90,6 +90,22 @@ const Reports = () => {
   });
   const [selectedPeriod, setSelectedPeriod] = useState("YTD");
   const [includeSold, setIncludeSold] = useState(true);
+  const [selectedBenchmark, setSelectedBenchmark] = useState("SPY");
+
+  const benchmarkOptions = [
+    // Indices
+    { value: "SPY", label: "S&P 500 (SPY)", category: "Indices" },
+    { value: "QQQ", label: "NASDAQ-100 (QQQ)", category: "Indices" },
+    { value: "IWM", label: "Russell 2000 (IWM)", category: "Indices" },
+    { value: "VTI", label: "Total Stock Market (VTI)", category: "Indices" },
+    { value: "VXUS", label: "International (VXUS)", category: "Indices" },
+    // Stocks
+    { value: "AAPL", label: "Apple Inc. (AAPL)", category: "Stocks" },
+    { value: "MSFT", label: "Microsoft (MSFT)", category: "Stocks" },
+    { value: "GOOGL", label: "Alphabet (GOOGL)", category: "Stocks" },
+    { value: "AMZN", label: "Amazon (AMZN)", category: "Stocks" },
+    { value: "NVDA", label: "NVIDIA (NVDA)", category: "Stocks" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -253,9 +269,33 @@ const Reports = () => {
                   />
                   <Legend />
                   <Line type="monotone" dataKey="portfolio" stroke="hsl(var(--primary))" strokeWidth={3} name="Portfolio" />
-                  <Line type="monotone" dataKey="benchmark" stroke="hsl(var(--muted-foreground))" strokeWidth={2} name="S&P 500" />
+                  <Line type="monotone" dataKey="benchmark" stroke="hsl(var(--muted-foreground))" strokeWidth={2} name={benchmarkOptions.find(opt => opt.value === selectedBenchmark)?.label || "S&P 500"} />
                 </LineChart>
               </ResponsiveContainer>
+              <div className="mt-4 pt-4 border-t border-border/50">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Benchmark:</span>
+                  <Select value={selectedBenchmark} onValueChange={setSelectedBenchmark}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <div className="p-2 text-xs font-medium text-muted-foreground">Indices</div>
+                      {benchmarkOptions.filter(option => option.category === "Indices").map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                      <div className="p-2 text-xs font-medium text-muted-foreground border-t border-border/50 mt-2">Stocks</div>
+                      {benchmarkOptions.filter(option => option.category === "Stocks").map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </Card>
 
             <Card className="p-6 bg-gradient-card border-border/50">
